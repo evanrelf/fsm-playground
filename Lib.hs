@@ -17,10 +17,10 @@ getState :: (forall s. State s a) -> a
 getState (UnsafeState a) = a
 
 class StateMachine t where
-  transitionRaw :: t i o -> i -> o
+  transitionRaw :: Functor f => t f i o -> i -> f o
 
-init :: StateMachine t => t () o -> State t o
-init t = UnsafeState (transitionRaw t ())
+init :: (StateMachine t, Functor f) => t f () o -> f (State t o)
+init t = UnsafeState <$> transitionRaw t ()
 
-transition :: StateMachine t => t i o -> State t i -> State t o
-transition t (UnsafeState i) = UnsafeState (transitionRaw t i)
+transition :: (StateMachine t, Functor f) => t f i o -> State t i -> f (State t o)
+transition t (UnsafeState i) = UnsafeState <$> transitionRaw t i
