@@ -1,3 +1,5 @@
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE ExplicitNamespaces #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 
@@ -7,8 +9,12 @@ module Example where
 
 import Control.Monad.IO.Class (MonadIO (..))
 import Data.Functor.Identity (Identity (..))
+import Data.Proxy (Proxy (..))
+import GHC.TypeLits (KnownNat, type (-))
 import Lib
 import Prelude hiding (init)
+
+--------------------------------------------------------------------------------
 
 data X = X
 
@@ -57,6 +63,8 @@ _exampleXyz =
   in
     z
 
+--------------------------------------------------------------------------------
+
 -- Attempting to obtain an `State s Z` with `init` rather than `transition` by
 -- creating a new state machine with the same data where that's a legal
 -- operation.
@@ -82,3 +90,88 @@ _evilInitZ = runIdentity $ init EvilInitZ
 -- _evilZToX :: State Xyz Z -> State Xyz X
 _evilZToX :: State EvilXyz Z -> State EvilXyz X
 _evilZToX i = runIdentity $ transition EvilZToX i
+
+--------------------------------------------------------------------------------
+
+-- Pretend this is in its own module, and the constructor is not exported.
+newtype Box n a = UnsafeBox a
+
+data TimeRelease f i o where
+  Lock :: KnownNat n => Proxy n -> a -> TimeRelease Identity () (Box n a)
+  Tick :: TimeRelease Identity (Box n a) (Box (n - 1) a)
+  Unlock :: TimeRelease Identity (Box 0 a) a
+
+instance StateMachine TimeRelease where
+  transitionRaw :: TimeRelease f i o -> i -> f o
+  transitionRaw = \case
+    Lock _ a -> \() -> pure (UnsafeBox a)
+    Tick -> \(UnsafeBox a) -> pure (UnsafeBox a)
+    Unlock -> \(UnsafeBox a) -> pure a
+
+lock :: forall n a. KnownNat n => a -> State TimeRelease (Box n a)
+lock a = runIdentity $ init (Lock (Proxy @n) a)
+
+tick :: State TimeRelease (Box n a) -> State TimeRelease (Box (n - 1) a)
+tick i = runIdentity $ transition Tick i
+
+unlock :: State TimeRelease (Box 0 a) -> a
+unlock i = getState $ runIdentity $ transition Unlock i
+
+_exampleTimeRelease :: Bool
+_exampleTimeRelease =
+  let
+    x = 42 :: Int
+    b3 = lock @3 x
+    b2 = tick b3
+    b1 = tick b2
+    b0 = tick b1
+    y = unlock b0
+  in
+    x == y
+
+--------------------------------------------------------------------------------
+
+-- TODO: Embed a `TimeRelease` into each `TrafficLight` state, to mimic the time
+-- you wait at a traffic light, and demonstrate combining state machines.
+
+data Red = Red
+
+data Yellow = Yellow
+
+data Green = Green
+
+data TrafficLight f i o where
+  InitRed :: TrafficLight Identity () Red
+  Go :: TrafficLight Identity Red Green
+  Slow :: TrafficLight Identity Green Yellow
+  Stop :: TrafficLight Identity Yellow Red
+
+instance StateMachine TrafficLight where
+  transitionRaw :: TrafficLight f i o -> i -> f o
+  transitionRaw = \case
+    InitRed -> \() -> pure Red
+    Go -> \Red -> pure Green
+    Slow -> \Green -> pure Yellow
+    Stop -> \Yellow -> pure Red
+
+initRed :: State TrafficLight Red
+initRed = runIdentity $ init InitRed
+
+go :: State TrafficLight Red -> State TrafficLight Green
+go i = runIdentity $ transition Go i
+
+slow :: State TrafficLight Green -> State TrafficLight Yellow
+slow i = runIdentity $ transition Slow i
+
+stop :: State TrafficLight Yellow -> State TrafficLight Red
+stop i = runIdentity $ transition Stop i
+
+_exampleTrafficLight :: State TrafficLight Red
+_exampleTrafficLight =
+  let
+    red1 = initRed
+    green = go red1
+    yellow = slow green
+    red2 = stop yellow
+  in
+    red2
