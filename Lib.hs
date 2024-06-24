@@ -13,7 +13,7 @@ import Prelude hiding (init)
 
 newtype State s a = UnsafeState a
 
-getState :: (forall s. State s a) -> a
+getState :: State s a -> a
 getState (UnsafeState a) = a
 
 class StateMachine t where
