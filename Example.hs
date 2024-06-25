@@ -8,6 +8,7 @@
 module Example where
 
 import Control.Monad.IO.Class (MonadIO (..))
+import Data.Function ((&))
 import Data.Functor.Const (Const (..))
 import Data.Functor.Identity (Identity (..))
 import Data.Proxy (Proxy (..))
@@ -101,6 +102,11 @@ newtype Box n a = UnsafeBox a
 data TimeRelease f i o where
   Lock :: KnownNat n => Proxy n -> a -> TimeRelease Identity () (Box n a)
   Tick :: TimeRelease Identity (Box n a) (Box (n - 1) a)
+  -- Using `Const` as the functor to escape the state machine and return a plain
+  -- value (not something wrapped in `State`).
+  --
+  -- `Void` is just for good measure; it's driving the point home that the next
+  -- state will never be reached, because we return a value instead.
   Unlock :: TimeRelease (Const a) (Box 0 a) Void
 
 instance StateMachine TimeRelease where
@@ -121,15 +127,16 @@ unlock i = getConst $ transition Unlock i
 
 _exampleTimeRelease :: Bool
 _exampleTimeRelease =
-  let
-    x = 42 :: Int
-    b3 = lock @3 x
-    b2 = tick b3
-    b1 = tick b2
-    b0 = tick b1
-    y = unlock b0
-  in
-    x == y
+  (42 :: Int)
+    & lock @3
+    -- Comment one of these `tick`s out and watch the program fail to compile!
+    -- GHC enforces that you call `tick` the correct number of times to
+    -- decrement the counter to zero.
+    & tick
+    & tick
+    & tick
+    & unlock
+    & (== 42)
 
 --------------------------------------------------------------------------------
 
@@ -147,6 +154,13 @@ data TrafficLight f i o where
   Go :: TrafficLight Identity Red Green
   Slow :: TrafficLight Identity Green Yellow
   Stop :: TrafficLight Identity Yellow Red
+  -- Here's another use of `Const` that allows inspecting the plain value
+  -- wrapped in `State` at _any point_ in the life of this state machine.
+  --
+  -- You can think of this as a `getState :: State s a -> a` function, or
+  -- pattern matching on the `State` data constructor, but limited to the
+  -- `TrafficLight` state machine.
+  Inspect :: TrafficLight (Const i) i Void
 
 instance StateMachine TrafficLight where
   transitionRaw :: TrafficLight f i o -> i -> f o
@@ -155,6 +169,7 @@ instance StateMachine TrafficLight where
     Go -> \Red -> pure Green
     Slow -> \Green -> pure Yellow
     Stop -> \Yellow -> pure Red
+    Inspect -> \i -> Const i
 
 initRed :: State TrafficLight Red
 initRed = runIdentity $ init InitRed
@@ -168,7 +183,10 @@ slow i = runIdentity $ transition Slow i
 stop :: State TrafficLight Yellow -> State TrafficLight Red
 stop i = runIdentity $ transition Stop i
 
-_exampleTrafficLight :: State TrafficLight Red
+inspect :: State TrafficLight a -> a
+inspect i = getConst $ transition Inspect i
+
+_exampleTrafficLight :: String
 _exampleTrafficLight =
   let
     red1 = initRed
@@ -176,4 +194,4 @@ _exampleTrafficLight =
     yellow = slow green
     red2 = stop yellow
   in
-    red2
+    case (inspect red1, inspect red2) of (Red, Red) -> "they're equal!"
