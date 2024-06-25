@@ -7,6 +7,6 @@ in
 pkgs.mkShell {
   packages = [
     ghciwatch-compat.packages.${builtins.currentSystem}.ghciwatch-compat-ghcid
-    pkgs.ghc
+    (pkgs.ghc.withPackages (p: with p; [ template-haskell ]))
   ];
 }
