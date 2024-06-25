@@ -8,8 +8,10 @@
 module Example where
 
 import Control.Monad.IO.Class (MonadIO (..))
+import Data.Functor.Const (Const (..))
 import Data.Functor.Identity (Identity (..))
 import Data.Proxy (Proxy (..))
+import Data.Void (Void)
 import GHC.TypeLits (KnownNat, type (-))
 import Lib
 import Prelude hiding (init)
@@ -99,14 +101,14 @@ newtype Box n a = UnsafeBox a
 data TimeRelease f i o where
   Lock :: KnownNat n => Proxy n -> a -> TimeRelease Identity () (Box n a)
   Tick :: TimeRelease Identity (Box n a) (Box (n - 1) a)
-  Unlock :: TimeRelease Identity (Box 0 a) a
+  Unlock :: TimeRelease (Const a) (Box 0 a) Void
 
 instance StateMachine TimeRelease where
   transitionRaw :: TimeRelease f i o -> i -> f o
   transitionRaw = \case
     Lock _ a -> \() -> pure (UnsafeBox a)
     Tick -> \(UnsafeBox a) -> pure (UnsafeBox a)
-    Unlock -> \(UnsafeBox a) -> pure a
+    Unlock -> \(UnsafeBox a) -> Const a
 
 lock :: forall n a. KnownNat n => a -> State TimeRelease (Box n a)
 lock a = runIdentity $ init (Lock (Proxy @n) a)
@@ -115,7 +117,7 @@ tick :: State TimeRelease (Box n a) -> State TimeRelease (Box (n - 1) a)
 tick i = runIdentity $ transition Tick i
 
 unlock :: State TimeRelease (Box 0 a) -> a
-unlock i = getState $ runIdentity $ transition Unlock i
+unlock i = getConst $ transition Unlock i
 
 _exampleTimeRelease :: Bool
 _exampleTimeRelease =

@@ -2,7 +2,6 @@
 
 module Lib
   ( State
-  , getState
   , StateMachine (..)
   , init
   , transition
@@ -12,9 +11,6 @@ where
 import Prelude hiding (init)
 
 newtype State s a = UnsafeState a
-
-getState :: State s a -> a
-getState (UnsafeState a) = a
 
 class StateMachine t where
   transitionRaw :: Functor f => t f i o -> i -> f o
