@@ -209,13 +209,6 @@ data TrafficLight f i o where
   Go :: TrafficLight Identity Red Green
   Slow :: TrafficLight Identity Green Yellow
   Stop :: TrafficLight Identity Yellow Red
-  -- Here's another use of `Const` that allows inspecting the plain value
-  -- wrapped in `State` at _any point_ in the life of this workflow.
-  --
-  -- You can think of this as a `getState :: State s a -> a` function, or
-  -- pattern matching on the `State` data constructor, but limited to the
-  -- `TrafficLight` workflow.
-  Inspect :: TrafficLight (Const i) i Void
 
 instance ConcreteWorkflow TrafficLight where
   transitionRaw :: TrafficLight f i o -> i -> f o
@@ -224,7 +217,6 @@ instance ConcreteWorkflow TrafficLight where
     Go -> \Red -> pure Green
     Slow -> \Green -> pure Yellow
     Stop -> \Yellow -> pure Red
-    Inspect -> \i -> Const i
 
 initRed :: State TrafficLight Red
 initRed = runIdentity $ init InitRed
@@ -238,9 +230,6 @@ slow i = runIdentity $ transition Slow i
 stop :: State TrafficLight Yellow -> State TrafficLight Red
 stop i = runIdentity $ transition Stop i
 
-inspect :: State TrafficLight a -> a
-inspect i = getConst $ transition Inspect i
-
 _exampleTrafficLight :: String
 _exampleTrafficLight =
   let
@@ -249,4 +238,4 @@ _exampleTrafficLight =
     yellow = slow green
     red2 = stop yellow
   in
-    case (inspect red1, inspect red2) of (Red, Red) -> "they're equal!"
+    case (getState red1, getState red2) of (Red, Red) -> "they're equal!"

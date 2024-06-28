@@ -32,7 +32,6 @@ data SomeStateTag w = forall s. SomeStateTag (StateTag w s)
 data TransitionKind
   = TransitionKind_Init
   | TransitionKind_Transition
-  | TransitionKind_Exit
 
 data TransitionInfo w = TransitionInfo
   { transitionInfoName :: String

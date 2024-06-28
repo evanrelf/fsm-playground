@@ -1,7 +1,11 @@
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE TypeFamilies #-}
+
 {-# OPTIONS_GHC -Wall #-}
 
 module ConcreteWorkflow
   ( State
+  , getState
   , ConcreteWorkflow (..)
   , initC
   , transitionC
@@ -16,6 +20,9 @@ where
 -- guaranteed to have been produced by lawful transitions in the `MyWorkflow`
 -- workflow.
 newtype State s a = UnsafeState a
+
+getState :: State s a -> a
+getState (UnsafeState a) = a
 
 class ConcreteWorkflow w where
   -- If you describe how to modify your underlying state data for all
