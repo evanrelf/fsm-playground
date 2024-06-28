@@ -58,15 +58,17 @@ data TransitionInfo = TransitionInfo
   }
 
 stateInfos :: forall w. AbstractWorkflow w => [StateInfo]
-stateInfos = map (\(SomeStateTag tag) -> stateInfo @w tag) states
+stateInfos = map (\(SomeStateTag tag) -> stateInfo tag) (states @w)
 
 transitionInfos :: forall w. AbstractWorkflow w => [TransitionInfo]
 transitionInfos =
-  map (\(SomeTransitionTag tag) -> transitionInfo @w tag) transitions
+  map (\(SomeTransitionTag tag) -> transitionInfo tag) (transitions @w)
 
-data SomeStateTag w = forall s. SomeStateTag (StateTag w s)
+data SomeStateTag w
+  = forall s. AbstractWorkflow w => SomeStateTag (StateTag w s)
 
-data SomeTransitionTag w = forall i o. SomeTransitionTag (TransitionTag w i o)
+data SomeTransitionTag w
+  = forall i o. AbstractWorkflow w => SomeTransitionTag (TransitionTag w i o)
 
 data AbstractState s = AbstractState
 
