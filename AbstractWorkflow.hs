@@ -1,3 +1,4 @@
+{-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -15,9 +16,6 @@ module AbstractWorkflow
 
   , SomeStateTag (..)
   , SomeTransitionTag (..)
-  , SomeWorkflowInfo (..)
-  , SomeStateInfo (..)
-  , SomeTransitionInfo (..)
 
   , AbstractState
   , initA
@@ -34,47 +32,41 @@ class AbstractWorkflow w where
   data TransitionTag w :: Type -> Type -> Type
   states :: [SomeStateTag w]
   transitions :: [SomeTransitionTag w]
-  workflowInfo :: WorkflowInfo w
-  stateInfo :: StateTag w s -> StateInfo w
-  transitionInfo :: TransitionTag w i o -> TransitionInfo w
+  workflowInfo :: WorkflowInfo
+  stateInfo :: StateTag w s -> StateInfo
+  transitionInfo :: TransitionTag w i o -> TransitionInfo
   stateTag' :: (Typeable a, Typeable b) => proxy a -> Maybe (StateTag w b)
   transitionTag :: w f i o -> TransitionTag w i o
 
-data WorkflowInfo w = WorkflowInfo
+data WorkflowInfo = WorkflowInfo
   { name :: String
   , description :: String
-  , states :: [StateInfo w]
-  , transitions :: [TransitionInfo w]
+  , states :: [StateInfo]
+  , transitions :: [TransitionInfo]
   }
 
-data StateInfo w = StateInfo
+data StateInfo = StateInfo
   { name :: String
   , description :: String
   }
 
-data TransitionInfo w = TransitionInfo
+data TransitionInfo = TransitionInfo
   { name :: String
   , description :: String
-  , input :: Maybe (StateInfo w)
-  , output :: StateInfo w
+  , input :: Maybe StateInfo
+  , output :: StateInfo
   }
 
-stateInfos :: AbstractWorkflow w => [StateInfo w]
-stateInfos = map (\(SomeStateTag tag) -> stateInfo tag) states
+stateInfos :: forall w. AbstractWorkflow w => [StateInfo]
+stateInfos = map (\(SomeStateTag tag) -> stateInfo @w tag) states
 
-transitionInfos :: AbstractWorkflow w => [TransitionInfo w]
+transitionInfos :: forall w. AbstractWorkflow w => [TransitionInfo]
 transitionInfos =
-  map (\(SomeTransitionTag tag) -> transitionInfo tag) transitions
+  map (\(SomeTransitionTag tag) -> transitionInfo @w tag) transitions
 
 data SomeStateTag w = forall s. SomeStateTag (StateTag w s)
 
 data SomeTransitionTag w = forall i o. SomeTransitionTag (TransitionTag w i o)
-
-data SomeWorkflowInfo = forall w. SomeWorkflowInfo (WorkflowInfo w)
-
-data SomeStateInfo = forall w. SomeStateInfo (StateInfo w)
-
-data SomeTransitionInfo = forall w. SomeTransitionInfo (TransitionInfo w)
 
 data AbstractState s = AbstractState
 

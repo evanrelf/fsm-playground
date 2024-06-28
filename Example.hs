@@ -71,8 +71,8 @@ instance AbstractWorkflow Xyz where
     WorkflowInfo
       { name = "Xyz"
       , description = "The `Xyz` workflow"
-      , states = stateInfos
-      , transitions = transitionInfos
+      , states = stateInfos @Xyz
+      , transitions = transitionInfos @Xyz
       }
 
   stateInfo = \case
