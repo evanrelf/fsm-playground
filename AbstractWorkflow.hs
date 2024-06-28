@@ -12,6 +12,9 @@ module AbstractWorkflow
   , AbstractWorkflow (..)
   , stateInfos
   , transitionInfos
+  , AbstractState
+  , initA
+  , transitionA
   )
 where
 
@@ -60,3 +63,11 @@ stateInfos = map (\(SomeStateTag tag) -> stateInfo tag) states
 transitionInfos :: AbstractWorkflow w => [TransitionInfo w]
 transitionInfos =
   map (\(SomeTransitionTag tag) -> transitionInfo tag) transitions
+
+data AbstractState s = AbstractState
+
+initA :: AbstractWorkflow w => TransitionTag w () o -> AbstractState o
+initA _ = AbstractState
+
+transitionA :: AbstractWorkflow w => TransitionTag w i o -> AbstractState i -> AbstractState o
+transitionA _ _ = AbstractState

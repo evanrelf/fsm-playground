@@ -39,7 +39,6 @@ data Xyz f i o where
   -- | The `YToZ` transition
   YToZ :: Xyz IO Y Z
 
-
 -- TODO: Derive this `AbstractWorkflow` instance with Template Haskell
 instance AbstractWorkflow Xyz where
   data StateTag Xyz s where
@@ -105,8 +104,17 @@ xToY n i = runIdentity $ transition (XToY n) i
 yToZ :: MonadIO m => State Xyz Y -> m (State Xyz Z)
 yToZ i = liftIO $ transition YToZ i
 
-_exampleXyz :: IO (State Xyz Z)
-_exampleXyz =
+_exampleXyzA :: AbstractState Z
+_exampleXyzA =
+  let
+    x = initA SInitX
+    y = transitionA SXToY x
+    z = transitionA SYToZ y
+  in
+    z
+
+_exampleXyzC :: IO (State Xyz Z)
+_exampleXyzC =
   let
     x = initX
     y = xToY 42 x

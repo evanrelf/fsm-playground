@@ -3,12 +3,10 @@
 module ConcreteWorkflow
   ( State
   , ConcreteWorkflow (..)
-  , init
-  , transition
+  , initC
+  , transitionC
   )
 where
-
-import Prelude hiding (init)
 
 -- A completely opaque, correct by construction container for state. Can only
 -- be constructed by calling `init` or `transition`.
@@ -26,8 +24,8 @@ class ConcreteWorkflow w where
 
 -- ...then you get type-safe workflow transitions:
 
-init :: (ConcreteWorkflow w, Functor f) => w f () o -> f (State w o)
-init w = UnsafeState <$> transitionRaw w ()
+initC :: (ConcreteWorkflow w, Functor f) => w f () o -> f (State w o)
+initC w = UnsafeState <$> transitionRaw w ()
 
-transition :: (ConcreteWorkflow w, Functor f) => w f i o -> State w i -> f (State w o)
-transition w (UnsafeState i) = UnsafeState <$> transitionRaw w i
+transitionC :: (ConcreteWorkflow w, Functor f) => w f i o -> State w i -> f (State w o)
+transitionC w (UnsafeState i) = UnsafeState <$> transitionRaw w i
