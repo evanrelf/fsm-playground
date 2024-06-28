@@ -15,6 +15,7 @@ import Data.Proxy (Proxy (..))
 import Data.Void (Void)
 import GHC.TypeLits (KnownNat, type (-))
 import Prelude hiding (init)
+import Type.Reflection
 import Workflow
 
 --------------------------------------------------------------------------------
@@ -77,6 +78,27 @@ instance AbstractWorkflow Xyz where
     SInitY -> TransitionInfo "InitY" "The `InitY` trans" TransitionKind_Init
     SXToY -> TransitionInfo "XToY" "The `XToY` trans" TransitionKind_Transition
     SYToZ -> TransitionInfo "YToZ" "The `YToZ` trans" TransitionKind_Transition
+
+  stateTag :: forall a b proxy. (Typeable a, Typeable b) => proxy a -> Maybe (StateTag Xyz b)
+  stateTag _ =
+    case eqTypeRep (TypeRep @a) (TypeRep @b) of
+      Nothing -> Nothing
+      Just HRefl ->
+        case eqTypeRep (TypeRep @a) (TypeRep @X) of
+          Just HRefl -> Just SX
+          Nothing ->
+            case eqTypeRep (TypeRep @a) (TypeRep @Y) of
+              Just HRefl -> Just SY
+              Nothing ->
+                case eqTypeRep (TypeRep @a) (TypeRep @Z) of
+                  Just HRefl -> Just SZ
+                  Nothing -> error "unreachable"
+
+  transitionTag = \case
+    InitX -> SInitX
+    InitY _ -> SInitY
+    XToY _ -> SXToY
+    YToZ -> SYToZ
 
 instance ConcreteWorkflow Xyz where
   transImpl :: Xyz f i o -> i -> f o

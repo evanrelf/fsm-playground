@@ -19,6 +19,7 @@ module AbstractWorkflow
 where
 
 import Data.Kind (Type)
+import Type.Reflection (Typeable)
 
 -- TODO: Derive `AbstractWorkflow` instances with Template Haskell
 
@@ -55,6 +56,8 @@ class AbstractWorkflow w where
   workflowInfo :: WorkflowInfo w
   stateInfo :: StateTag w s -> StateInfo w
   transitionInfo :: TransitionTag w i o -> TransitionInfo w
+  stateTag :: (Typeable a, Typeable b) => proxy a -> Maybe (StateTag w b)
+  transitionTag :: w f i o -> TransitionTag w i o
 
 stateInfos :: AbstractWorkflow w => [StateInfo w]
 stateInfos = map (\(SomeStateTag tag) -> stateInfo tag) states
