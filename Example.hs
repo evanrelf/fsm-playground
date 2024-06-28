@@ -92,7 +92,7 @@ instance AbstractWorkflow Xyz where
               Nothing ->
                 case eqTypeRep (TypeRep @a) (TypeRep @Z) of
                   Just HRefl -> Just SZ
-                  Nothing -> error "unreachable"
+                  Nothing -> Nothing
 
   transitionTag = \case
     InitX -> SInitX
