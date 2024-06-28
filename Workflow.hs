@@ -4,12 +4,16 @@ module Workflow
   , Workflow
   , init
   , trans
+  , stateTag
   )
 where
 
 import AbstractWorkflow
 import ConcreteWorkflow
+import Data.Maybe (fromMaybe)
+import Data.Proxy (Proxy (..))
 import Prelude hiding (init)
+import Type.Reflection (Typeable)
 
 type Workflow w = (AbstractWorkflow w, ConcreteWorkflow w)
 
@@ -18,3 +22,6 @@ init = initC
 
 trans :: (ConcreteWorkflow w, Functor f) => w f i o -> State w i -> f (State w o)
 trans = transC
+
+stateTag :: forall s w. (Workflow w, Typeable s) => State w s -> StateTag w s
+stateTag _ = fromMaybe (error "unreachable") $ stateTag' (Proxy @s)

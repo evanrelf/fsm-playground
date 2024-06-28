@@ -79,8 +79,8 @@ instance AbstractWorkflow Xyz where
     SXToY -> TransitionInfo "XToY" "The `XToY` trans" False
     SYToZ -> TransitionInfo "YToZ" "The `YToZ` trans" False
 
-  stateTag :: forall a b proxy. (Typeable a, Typeable b) => proxy a -> Maybe (StateTag Xyz b)
-  stateTag _ =
+  stateTag' :: forall a b proxy. (Typeable a, Typeable b) => proxy a -> Maybe (StateTag Xyz b)
+  stateTag' _ =
     case eqTypeRep (TypeRep @a) (TypeRep @b) of
       Nothing -> Nothing
       Just HRefl ->

@@ -49,7 +49,7 @@ class AbstractWorkflow w where
   workflowInfo :: WorkflowInfo w
   stateInfo :: StateTag w s -> StateInfo w
   transitionInfo :: TransitionTag w i o -> TransitionInfo w
-  stateTag :: (Typeable a, Typeable b) => proxy a -> Maybe (StateTag w b)
+  stateTag' :: (Typeable a, Typeable b) => proxy a -> Maybe (StateTag w b)
   transitionTag :: w f i o -> TransitionTag w i o
 
 stateInfos :: AbstractWorkflow w => [StateInfo w]
