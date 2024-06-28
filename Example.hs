@@ -2,6 +2,7 @@
 {-# LANGUAGE ExplicitNamespaces #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE TypeFamilies #-}
 
 {-# OPTIONS_GHC -Wall #-}
 
@@ -19,17 +20,65 @@ import Prelude hiding (init)
 
 --------------------------------------------------------------------------------
 
+-- | Foo
 data X = X
 
+-- | Bar
 data Y = Y Int
 
+-- | Baz
 data Z = Z
 
+-- | The `Xyz` workflow
 data Xyz f i o where
+  -- | The `InitX` transition
   InitX :: Xyz Identity () X
+  -- | The `InitY` transition
   InitY :: Int -> Xyz Identity () Y
+  -- | The `XToY` transition
   XToY :: Int -> Xyz Identity X Y
+  -- | The `YToZ` transition
   YToZ :: Xyz IO Y Z
+
+
+-- TODO: Derive this `AbstractWorkflow` instance with Template Haskell
+instance AbstractWorkflow Xyz where
+  data StateTag Xyz s where
+    SX :: StateTag Xyz X
+    SY :: StateTag Xyz Y
+    SZ :: StateTag Xyz Z
+
+  data TransitionTag Xyz i o where
+    SInitX :: TransitionTag Xyz () X
+    SInitY :: TransitionTag Xyz () Y
+    SXToY :: TransitionTag Xyz X Y
+    SYToZ :: TransitionTag Xyz Y Z
+
+  states =
+    [ SomeStateTag SX
+    , SomeStateTag SY
+    , SomeStateTag SZ
+    ]
+
+  transitions =
+    [ SomeTransitionTag SInitX
+    , SomeTransitionTag SInitY
+    , SomeTransitionTag SXToY
+    , SomeTransitionTag SYToZ
+    ]
+
+  workflowInfo = WorkflowInfo "Xyz" "The `Xyz` workflow"
+
+  stateInfo = \case
+    SX -> StateInfo "X" "Foo"
+    SY -> StateInfo "Y" "Bar"
+    SZ -> StateInfo "Z" "Baz"
+
+  transitionInfo = \case
+    SInitX -> TransitionInfo "InitX" "The `InitX` transition" TransitionKind_Init
+    SInitY -> TransitionInfo "InitY" "The `InitY` transition" TransitionKind_Init
+    SXToY -> TransitionInfo "XToY" "The `XToY` transition" TransitionKind_Transition
+    SYToZ -> TransitionInfo "YToZ" "The `YToZ` transition" TransitionKind_Transition
 
 instance Workflow Xyz where
   transitionRaw :: Xyz f i o -> i -> f o
