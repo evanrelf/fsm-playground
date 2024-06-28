@@ -31,6 +31,8 @@ data SomeTransitionTag w where
 data WorkflowInfo w = WorkflowInfo
   { name :: String
   , description :: String
+  , states :: [StateInfo w]
+  , transitions :: [TransitionInfo w]
   }
 
 data StateInfo w = StateInfo
