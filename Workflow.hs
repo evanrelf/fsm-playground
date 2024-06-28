@@ -2,6 +2,7 @@ module Workflow
   ( module AbstractWorkflow
   , module ConcreteWorkflow
   , module Info
+  , module Graph
   , module TH
   , Workflow
   , init
@@ -14,6 +15,7 @@ import AbstractWorkflow
 import ConcreteWorkflow
 import Data.Maybe (fromMaybe)
 import Data.Proxy (Proxy (..))
+import Graph
 import Info
 import Prelude hiding (init)
 import TH
