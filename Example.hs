@@ -1,6 +1,5 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE ExplicitNamespaces #-}
-{-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE TypeFamilies #-}
 
@@ -8,6 +7,7 @@
 
 module Example where
 
+import AbstractWorkflow
 import Control.Monad.IO.Class (MonadIO (..))
 import Data.Function ((&))
 import Data.Functor.Const (Const (..))
@@ -15,8 +15,8 @@ import Data.Functor.Identity (Identity (..))
 import Data.Proxy (Proxy (..))
 import Data.Void (Void)
 import GHC.TypeLits (KnownNat, type (-))
-import Lib
 import Prelude hiding (init)
+import Workflow
 
 --------------------------------------------------------------------------------
 
