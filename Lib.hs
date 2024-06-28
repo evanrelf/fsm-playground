@@ -2,7 +2,7 @@
 
 module Lib
   ( State
-  , StateMachine (..)
+  , Workflow (..)
   , init
   , transition
   )
@@ -14,20 +14,20 @@ import Prelude hiding (init)
 -- be constructed by calling `init` or `transition`.
 --
 -- In other words, `MyState` is just a regular value that you can inspect and
--- modify arbitrarily, but `State MyFsm MyState` is a `MyState` that is
--- guaranteed to have been produced by lawful transitions in the `MyFsm` state
--- machine.
+-- modify arbitrarily, but `State MyWorkflow MyState` is a `MyState` that is
+-- guaranteed to have been produced by lawful transitions in the `MyWorkflow`
+-- workflow.
 newtype State s a = UnsafeState a
 
-class StateMachine t where
+class Workflow w where
   -- If you describe how to modify your underlying state data for all
-  -- transitions in this state machine:
-  transitionRaw :: Functor f => t f i o -> i -> f o
+  -- transitions in this workflow:
+  transitionRaw :: Functor f => w f i o -> i -> f o
 
--- ...then you get type-safe state machine transitions:
+-- ...then you get type-safe workflow transitions:
 
-init :: (StateMachine t, Functor f) => t f () o -> f (State t o)
-init t = UnsafeState <$> transitionRaw t ()
+init :: (Workflow w, Functor f) => w f () o -> f (State w o)
+init w = UnsafeState <$> transitionRaw w ()
 
-transition :: (StateMachine t, Functor f) => t f i o -> State t i -> f (State t o)
-transition t (UnsafeState i) = UnsafeState <$> transitionRaw t i
+transition :: (Workflow w, Functor f) => w f i o -> State w i -> f (State w o)
+transition w (UnsafeState i) = UnsafeState <$> transitionRaw w i

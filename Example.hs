@@ -31,7 +31,7 @@ data Xyz f i o where
   XToY :: Int -> Xyz Identity X Y
   YToZ :: Xyz IO Y Z
 
-instance StateMachine Xyz where
+instance Workflow Xyz where
   transitionRaw :: Xyz f i o -> i -> f o
   transitionRaw = \case
     InitX -> \() -> pure X
@@ -69,20 +69,19 @@ _exampleXyz =
 --------------------------------------------------------------------------------
 
 -- Attempting to obtain an `State s Z` with `init` rather than `transition` by
--- creating a new state machine with the same data where that's a legal
--- operation.
+-- creating a new workflow with the same data where that's a legal operation.
 
 data EvilXyz f i o where
   EvilInitZ :: EvilXyz Identity () Z
   EvilZToX :: EvilXyz Identity Z X
 
-instance StateMachine EvilXyz where
+instance Workflow EvilXyz where
   transitionRaw :: EvilXyz f i o -> i -> f o
   transitionRaw = \case
     EvilInitZ -> \() -> pure Z
     EvilZToX -> \Z -> pure X
 
--- Doesn't compile if you lie about the state machine type, preventing invalid
+-- Doesn't compile if you lie about the workflow type, preventing invalid
 -- `init`s or `transition`s (outside the canonical ones defined by the type
 -- class).
 
@@ -102,14 +101,14 @@ newtype Box n a = UnsafeBox a
 data TimeRelease f i o where
   Lock :: KnownNat n => Proxy n -> a -> TimeRelease Identity () (Box n a)
   Tick :: TimeRelease Identity (Box n a) (Box (n - 1) a)
-  -- Using `Const` as the functor to escape the state machine and return a plain
+  -- Using `Const` as the functor to escape the workflow and return a plain
   -- value (not something wrapped in `State`).
   --
   -- `Void` is just for good measure; it's driving the point home that the next
   -- state will never be reached, because we return a value instead.
   Unlock :: TimeRelease (Const a) (Box 0 a) Void
 
-instance StateMachine TimeRelease where
+instance Workflow TimeRelease where
   transitionRaw :: TimeRelease f i o -> i -> f o
   transitionRaw = \case
     Lock _ a -> \() -> pure (UnsafeBox a)
@@ -141,7 +140,7 @@ _exampleTimeRelease =
 --------------------------------------------------------------------------------
 
 -- TODO: Embed a `TimeRelease` into each `TrafficLight` state, to mimic the time
--- you wait at a traffic light, and demonstrate combining state machines.
+-- you wait at a traffic light, and demonstrate combining workflows.
 
 data Red = Red
 
@@ -155,14 +154,14 @@ data TrafficLight f i o where
   Slow :: TrafficLight Identity Green Yellow
   Stop :: TrafficLight Identity Yellow Red
   -- Here's another use of `Const` that allows inspecting the plain value
-  -- wrapped in `State` at _any point_ in the life of this state machine.
+  -- wrapped in `State` at _any point_ in the life of this workflow.
   --
   -- You can think of this as a `getState :: State s a -> a` function, or
   -- pattern matching on the `State` data constructor, but limited to the
-  -- `TrafficLight` state machine.
+  -- `TrafficLight` workflow.
   Inspect :: TrafficLight (Const i) i Void
 
-instance StateMachine TrafficLight where
+instance Workflow TrafficLight where
   transitionRaw :: TrafficLight f i o -> i -> f o
   transitionRaw = \case
     InitRed -> \() -> pure Red
