@@ -83,16 +83,11 @@ instance AbstractWorkflow Xyz where
   stateTag' _ =
     case eqTypeRep (TypeRep @a) (TypeRep @b) of
       Nothing -> Nothing
-      Just HRefl ->
-        case eqTypeRep (TypeRep @a) (TypeRep @X) of
-          Just HRefl -> Just SX
-          Nothing ->
-            case eqTypeRep (TypeRep @a) (TypeRep @Y) of
-              Just HRefl -> Just SY
-              Nothing ->
-                case eqTypeRep (TypeRep @a) (TypeRep @Z) of
-                  Just HRefl -> Just SZ
-                  Nothing -> Nothing
+      Just HRefl
+        | Just HRefl <- eqTypeRep (TypeRep @a) (TypeRep @X) -> Just SX
+        | Just HRefl <- eqTypeRep (TypeRep @a) (TypeRep @Y) -> Just SY
+        | Just HRefl <- eqTypeRep (TypeRep @a) (TypeRep @Z) -> Just SZ
+        | otherwise -> Nothing
 
   transitionTag = \case
     InitX -> SInitX
