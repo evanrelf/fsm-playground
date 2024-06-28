@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE ExplicitNamespaces #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -66,18 +67,42 @@ instance AbstractWorkflow Xyz where
     , SomeTransitionTag SYToZ
     ]
 
-  workflowInfo = WorkflowInfo "Xyz" "The `Xyz` workflow"
+  workflowInfo =
+    WorkflowInfo
+      { name = "Xyz"
+      , description = "The `Xyz` workflow"
+      }
 
   stateInfo = \case
-    SX -> StateInfo "X" "Foo"
-    SY -> StateInfo "Y" "Bar"
-    SZ -> StateInfo "Z" "Baz"
+    SX -> StateInfo{ name = "X", description = "Foo" }
+    SY -> StateInfo{ name = "Y", description = "Bar" }
+    SZ -> StateInfo{ name = "Z", description = "Baz" }
 
   transitionInfo = \case
-    SInitX -> TransitionInfo "InitX" "The `InitX` trans" True
-    SInitY -> TransitionInfo "InitY" "The `InitY` trans" True
-    SXToY -> TransitionInfo "XToY" "The `XToY` trans" False
-    SYToZ -> TransitionInfo "YToZ" "The `YToZ` trans" False
+    SInitX ->
+      TransitionInfo
+        { name = "InitX"
+        , description = "The `InitX` trans"
+        , isInit = True
+        }
+    SInitY ->
+      TransitionInfo
+        { name = "InitY"
+        , description = "The `InitY` trans"
+        , isInit = True
+        }
+    SXToY ->
+      TransitionInfo
+        { name = "XToY"
+        , description = "The `XToY` trans"
+        , isInit = False
+        }
+    SYToZ ->
+      TransitionInfo
+        { name = "YToZ"
+        , description = "The `YToZ` trans"
+        , isInit = False
+        }
 
   stateTag' :: forall a b proxy. (Typeable a, Typeable b) => proxy a -> Maybe (StateTag Xyz b)
   stateTag' _ =

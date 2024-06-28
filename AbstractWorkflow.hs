@@ -1,3 +1,5 @@
+{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE TypeFamilies #-}
 
 {-# OPTIONS_GHC -Wall #-}
@@ -27,19 +29,19 @@ data SomeTransitionTag w where
   SomeTransitionTag :: TransitionTag w i o -> SomeTransitionTag w
 
 data WorkflowInfo w = WorkflowInfo
-  { workflowInfoName :: String
-  , workflowInfoDescription :: String
+  { name :: String
+  , description :: String
   }
 
 data StateInfo w = StateInfo
-  { stateInfoName :: String
-  , stateInfoDescription :: String
+  { name :: String
+  , description :: String
   }
 
 data TransitionInfo w = TransitionInfo
-  { transitionInfoName :: String
-  , transitionInfoDescription :: String
-  , transitionInfoIsInit :: Bool
+  { name :: String
+  , description :: String
+  , isInit :: Bool
   }
 
 -- TODO: Derive instances with Template Haskell
