@@ -212,47 +212,6 @@ data TimeRelease f i o where
   -- state will never be reached, because we return a value instead.
   Unlock :: TimeRelease (Const a) (Box 0 a) Void
 
-instance AbstractWorkflow TimeRelease where
-  -- TODO:
-  -- Can I even implement this type, when there's an infinite number of
-  -- type-level natural numbers I could represent in the concrete version?
-  --
-  -- I need `Workflow.stateTag` (the one that guarantees you a `StateTag`) to
-  -- not throw.
-  --
-  -- I don't think I can. The point of the GADT is to recover type information
-  -- from terms. I can't conjure a `Natural` from e.g. an `Int` in a way that
-  -- will work here, I think. `reflection` comes closest, but contains that
-  -- information to a scope, which won't work here.
-  data StateTag TimeRelease s where
-
-  data TransitionTag TimeRelease i o where
-    SLock :: TransitionTag TimeRelease () (Box n a)
-    STick :: TransitionTag TimeRelease (Box n a) (Box (n - 1) a)
-    -- TODO: `Void` is a problem here
-    SUnlock :: TransitionTag TimeRelease (Box 0 a) Void
-
-  states :: [SomeStateTag w]
-  states = undefined
-
-  transitions :: [SomeTransitionTag w]
-  transitions = undefined
-
-  stateTag' :: (Typeable a, Typeable b) => proxy a -> Maybe (StateTag w b)
-  stateTag' = undefined
-
-  transitionTag :: w f i o -> TransitionTag w i o
-  transitionTag = undefined
-
-  workflowInfo :: WorkflowInfo
-  workflowInfo = undefined
-
-  stateInfo :: StateTag w s -> StateInfo
-  stateInfo = undefined
-
-  transitionInfo :: TransitionTag w i o -> TransitionInfo
-  transitionInfo = undefined
-
 instance ConcreteWorkflow TimeRelease where
   transImpl :: TimeRelease f i o -> i -> f o
   transImpl = \case

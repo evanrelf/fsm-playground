@@ -22,6 +22,8 @@ import Info
 import Type.Reflection (Typeable)
 
 -- TODO: Derive instances with Template Haskell
+-- TODO: States and transitions need to be enumerable and bounded (not
+-- necessarily `Enum` and `Bounded`, though that'd be nice)
 class AbstractWorkflow w where
   data StateTag w :: Type -> Type
   data TransitionTag w :: Type -> Type -> Type
