@@ -7,7 +7,6 @@
 
 module Example where
 
-import AbstractWorkflow
 import Control.Monad.IO.Class (MonadIO (..))
 import Data.Function ((&))
 import Data.Functor.Const (Const (..))
@@ -80,7 +79,7 @@ instance AbstractWorkflow Xyz where
     SXToY -> TransitionInfo "XToY" "The `XToY` transition" TransitionKind_Transition
     SYToZ -> TransitionInfo "YToZ" "The `YToZ` transition" TransitionKind_Transition
 
-instance Workflow Xyz where
+instance ConcreteWorkflow Xyz where
   transitionRaw :: Xyz f i o -> i -> f o
   transitionRaw = \case
     InitX -> \() -> pure X
@@ -124,7 +123,7 @@ data EvilXyz f i o where
   EvilInitZ :: EvilXyz Identity () Z
   EvilZToX :: EvilXyz Identity Z X
 
-instance Workflow EvilXyz where
+instance ConcreteWorkflow EvilXyz where
   transitionRaw :: EvilXyz f i o -> i -> f o
   transitionRaw = \case
     EvilInitZ -> \() -> pure Z
@@ -157,7 +156,7 @@ data TimeRelease f i o where
   -- state will never be reached, because we return a value instead.
   Unlock :: TimeRelease (Const a) (Box 0 a) Void
 
-instance Workflow TimeRelease where
+instance ConcreteWorkflow TimeRelease where
   transitionRaw :: TimeRelease f i o -> i -> f o
   transitionRaw = \case
     Lock _ a -> \() -> pure (UnsafeBox a)
@@ -210,7 +209,7 @@ data TrafficLight f i o where
   -- `TrafficLight` workflow.
   Inspect :: TrafficLight (Const i) i Void
 
-instance Workflow TrafficLight where
+instance ConcreteWorkflow TrafficLight where
   transitionRaw :: TrafficLight f i o -> i -> f o
   transitionRaw = \case
     InitRed -> \() -> pure Red
