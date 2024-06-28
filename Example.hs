@@ -74,10 +74,10 @@ instance AbstractWorkflow Xyz where
     SZ -> StateInfo "Z" "Baz"
 
   transitionInfo = \case
-    SInitX -> TransitionInfo "InitX" "The `InitX` trans" TransitionKind_Init
-    SInitY -> TransitionInfo "InitY" "The `InitY` trans" TransitionKind_Init
-    SXToY -> TransitionInfo "XToY" "The `XToY` trans" TransitionKind_Transition
-    SYToZ -> TransitionInfo "YToZ" "The `YToZ` trans" TransitionKind_Transition
+    SInitX -> TransitionInfo "InitX" "The `InitX` trans" True
+    SInitY -> TransitionInfo "InitY" "The `InitY` trans" True
+    SXToY -> TransitionInfo "XToY" "The `XToY` trans" False
+    SYToZ -> TransitionInfo "YToZ" "The `YToZ` trans" False
 
   stateTag :: forall a b proxy. (Typeable a, Typeable b) => proxy a -> Maybe (StateTag Xyz b)
   stateTag _ =

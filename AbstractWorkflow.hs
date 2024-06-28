@@ -4,7 +4,6 @@
 
 module AbstractWorkflow
   ( StateInfo (..)
-  , TransitionKind (..)
   , TransitionInfo (..)
   , WorkflowInfo (..)
   , SomeStateTag (..)
@@ -21,8 +20,6 @@ where
 import Data.Kind (Type)
 import Type.Reflection (Typeable)
 
--- TODO: Derive `AbstractWorkflow` instances with Template Haskell
-
 data StateInfo w = StateInfo
   { stateInfoName :: String
   , stateInfoDescription :: String
@@ -30,14 +27,10 @@ data StateInfo w = StateInfo
 
 data SomeStateTag w = forall s. SomeStateTag (StateTag w s)
 
-data TransitionKind
-  = TransitionKind_Init
-  | TransitionKind_Transition
-
 data TransitionInfo w = TransitionInfo
   { transitionInfoName :: String
   , transitionInfoDescription :: String
-  , transitionInfoKind :: TransitionKind
+  , transitionInfoIsInit :: Bool
   }
 
 data SomeTransitionTag w = forall i o. SomeTransitionTag (TransitionTag w i o)
@@ -47,7 +40,7 @@ data WorkflowInfo w = WorkflowInfo
   , workflowInfoDescription :: String
   }
 
--- TODO: Rename this to something less enterprise Java-y
+-- TODO: Derive instances with Template Haskell
 class AbstractWorkflow w where
   data StateTag w :: Type -> Type
   data TransitionTag w :: Type -> Type -> Type
@@ -72,4 +65,4 @@ initA :: AbstractWorkflow w => TransitionTag w () o -> AbstractState o
 initA _ = AbstractState
 
 transA :: AbstractWorkflow w => TransitionTag w i o -> AbstractState i -> AbstractState o
-transA _ _ = AbstractState
+transA _ AbstractState = AbstractState
