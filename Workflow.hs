@@ -3,7 +3,7 @@ module Workflow
   , module ConcreteWorkflow
   , Workflow
   , init
-  , transition
+  , trans
   )
 where
 
@@ -16,5 +16,5 @@ type Workflow w = (AbstractWorkflow w, ConcreteWorkflow w)
 init :: (ConcreteWorkflow w, Functor f) => w f () o -> f (State w o)
 init = initC
 
-transition :: (ConcreteWorkflow w, Functor f) => w f i o -> State w i -> f (State w o)
-transition = transitionC
+trans :: (ConcreteWorkflow w, Functor f) => w f i o -> State w i -> f (State w o)
+trans = transC

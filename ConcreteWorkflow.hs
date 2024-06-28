@@ -8,7 +8,7 @@ module ConcreteWorkflow
   , getState
   , ConcreteWorkflow (..)
   , initC
-  , transitionC
+  , transC
   )
 where
 
@@ -27,12 +27,12 @@ getState (UnsafeState a) = a
 class ConcreteWorkflow w where
   -- If you describe how to modify your underlying state data for all
   -- transitions in this workflow:
-  transitionRaw :: Functor f => w f i o -> i -> f o
+  transImpl :: Functor f => w f i o -> i -> f o
 
 -- ...then you get type-safe workflow transitions:
 
 initC :: (ConcreteWorkflow w, Functor f) => w f () o -> f (State w o)
-initC w = UnsafeState <$> transitionRaw w ()
+initC w = UnsafeState <$> transImpl w ()
 
-transitionC :: (ConcreteWorkflow w, Functor f) => w f i o -> State w i -> f (State w o)
-transitionC w (UnsafeState i) = UnsafeState <$> transitionRaw w i
+transC :: (ConcreteWorkflow w, Functor f) => w f i o -> State w i -> f (State w o)
+transC w (UnsafeState i) = UnsafeState <$> transImpl w i

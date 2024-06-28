@@ -14,7 +14,7 @@ module AbstractWorkflow
   , transitionInfos
   , AbstractState
   , initA
-  , transitionA
+  , transA
   )
 where
 
@@ -68,5 +68,5 @@ data AbstractState s = AbstractState
 initA :: AbstractWorkflow w => TransitionTag w () o -> AbstractState o
 initA _ = AbstractState
 
-transitionA :: AbstractWorkflow w => TransitionTag w i o -> AbstractState i -> AbstractState o
-transitionA _ _ = AbstractState
+transA :: AbstractWorkflow w => TransitionTag w i o -> AbstractState i -> AbstractState o
+transA _ _ = AbstractState
