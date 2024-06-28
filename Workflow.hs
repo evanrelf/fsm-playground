@@ -1,6 +1,8 @@
 module Workflow
   ( module AbstractWorkflow
   , module ConcreteWorkflow
+  , module Info
+  , module TH
   , Workflow
   , init
   , trans
@@ -12,7 +14,9 @@ import AbstractWorkflow
 import ConcreteWorkflow
 import Data.Maybe (fromMaybe)
 import Data.Proxy (Proxy (..))
+import Info
 import Prelude hiding (init)
+import TH
 import Type.Reflection (Typeable)
 
 type Workflow w = (AbstractWorkflow w, ConcreteWorkflow w)

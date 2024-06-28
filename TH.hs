@@ -16,6 +16,6 @@ import Language.Haskell.TH
 -- TODO: Generate `AbstractWorkflow` instance
 derive :: Name -> Q [Dec]
 derive name = do
-  TyConI (DataD _ _ _ _ cons _) <- reify name
+  TyConI (DataD _ _ _ _ _cons _) <- reify name
   -- cons should be `GadtC`s, possibly wrapped in `ForallC`
   pure []

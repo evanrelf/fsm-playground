@@ -1,16 +1,10 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
-{-# LANGUAGE DuplicateRecordFields #-}
-{-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE TypeFamilies #-}
 
 {-# OPTIONS_GHC -Wall #-}
 
 module AbstractWorkflow
   ( AbstractWorkflow (..)
-
-  , WorkflowInfo (..)
-  , StateInfo (..)
-  , TransitionInfo (..)
   , stateInfos
   , transitionInfos
 
@@ -24,6 +18,7 @@ module AbstractWorkflow
 where
 
 import Data.Kind (Type)
+import Info
 import Type.Reflection (Typeable)
 
 -- TODO: Derive instances with Template Haskell
@@ -37,25 +32,6 @@ class AbstractWorkflow w where
   transitionInfo :: TransitionTag w i o -> TransitionInfo
   stateTag' :: (Typeable a, Typeable b) => proxy a -> Maybe (StateTag w b)
   transitionTag :: w f i o -> TransitionTag w i o
-
-data WorkflowInfo = WorkflowInfo
-  { name :: String
-  , description :: String
-  , states :: [StateInfo]
-  , transitions :: [TransitionInfo]
-  }
-
-data StateInfo = StateInfo
-  { name :: String
-  , description :: String
-  }
-
-data TransitionInfo = TransitionInfo
-  { name :: String
-  , description :: String
-  , input :: Maybe StateInfo
-  , output :: StateInfo
-  }
 
 stateInfos :: forall w. AbstractWorkflow w => [StateInfo]
 stateInfos = map (\(SomeStateTag tag) -> stateInfo tag) (states @w)
