@@ -3,11 +3,11 @@
 {-# OPTIONS_GHC -Wall #-}
 
 module AbstractWorkflow
-  ( StateInfo (..)
-  , TransitionInfo (..)
-  , WorkflowInfo (..)
-  , SomeStateTag (..)
+  ( SomeStateTag (..)
   , SomeTransitionTag (..)
+  , WorkflowInfo (..)
+  , StateInfo (..)
+  , TransitionInfo (..)
   , AbstractWorkflow (..)
   , stateInfos
   , transitionInfos
@@ -20,24 +20,26 @@ where
 import Data.Kind (Type)
 import Type.Reflection (Typeable)
 
+data SomeStateTag w where
+  SomeStateTag :: StateTag w s -> SomeStateTag w
+
+data SomeTransitionTag w where
+  SomeTransitionTag :: TransitionTag w i o -> SomeTransitionTag w
+
+data WorkflowInfo w = WorkflowInfo
+  { workflowInfoName :: String
+  , workflowInfoDescription :: String
+  }
+
 data StateInfo w = StateInfo
   { stateInfoName :: String
   , stateInfoDescription :: String
   }
 
-data SomeStateTag w = forall s. SomeStateTag (StateTag w s)
-
 data TransitionInfo w = TransitionInfo
   { transitionInfoName :: String
   , transitionInfoDescription :: String
   , transitionInfoIsInit :: Bool
-  }
-
-data SomeTransitionTag w = forall i o. SomeTransitionTag (TransitionTag w i o)
-
-data WorkflowInfo w = WorkflowInfo
-  { workflowInfoName :: String
-  , workflowInfoDescription :: String
   }
 
 -- TODO: Derive instances with Template Haskell
