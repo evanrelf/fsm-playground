@@ -27,11 +27,11 @@ class AbstractWorkflow w where
   data TransitionTag w :: Type -> Type -> Type
   states :: [SomeStateTag w]
   transitions :: [SomeTransitionTag w]
+  stateTag' :: (Typeable a, Typeable b) => proxy a -> Maybe (StateTag w b)
+  transitionTag :: w f i o -> TransitionTag w i o
   workflowInfo :: WorkflowInfo
   stateInfo :: StateTag w s -> StateInfo
   transitionInfo :: TransitionTag w i o -> TransitionInfo
-  stateTag' :: (Typeable a, Typeable b) => proxy a -> Maybe (StateTag w b)
-  transitionTag :: w f i o -> TransitionTag w i o
 
 stateInfos :: forall w. AbstractWorkflow w => [StateInfo]
 stateInfos = map (\(SomeStateTag tag) -> stateInfo tag) (states @w)
@@ -41,10 +41,12 @@ transitionInfos =
   map (\(SomeTransitionTag tag) -> transitionInfo tag) (transitions @w)
 
 data SomeStateTag w
-  = forall s. AbstractWorkflow w => SomeStateTag (StateTag w s)
+   = forall s. (AbstractWorkflow w, Typeable s)
+  => SomeStateTag (StateTag w s)
 
 data SomeTransitionTag w
-  = forall i o. AbstractWorkflow w => SomeTransitionTag (TransitionTag w i o)
+   = forall i o. (AbstractWorkflow w, Typeable i, Typeable o)
+  => SomeTransitionTag (TransitionTag w i o)
 
 data AbstractState s = AbstractState
 
