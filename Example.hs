@@ -83,25 +83,29 @@ instance AbstractWorkflow Xyz where
       TransitionInfo
         { name = "InitX"
         , description = "The `InitX` trans"
-        , isInit = True
+        , input = Nothing
+        , output = stateInfo SX
         }
     SInitY ->
       TransitionInfo
         { name = "InitY"
         , description = "The `InitY` trans"
-        , isInit = True
+        , input = Nothing
+        , output = stateInfo SY
         }
     SXToY ->
       TransitionInfo
         { name = "XToY"
         , description = "The `XToY` trans"
-        , isInit = False
+        , input = Just (stateInfo SX)
+        , output = stateInfo SY
         }
     SYToZ ->
       TransitionInfo
         { name = "YToZ"
         , description = "The `YToZ` trans"
-        , isInit = False
+        , input = Just (stateInfo SY)
+        , output = stateInfo SZ
         }
 
   stateTag' :: forall a b proxy. (Typeable a, Typeable b) => proxy a -> Maybe (StateTag Xyz b)

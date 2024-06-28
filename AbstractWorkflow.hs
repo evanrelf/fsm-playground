@@ -41,7 +41,8 @@ data StateInfo w = StateInfo
 data TransitionInfo w = TransitionInfo
   { name :: String
   , description :: String
-  , isInit :: Bool
+  , input :: Maybe (StateInfo w)
+  , output :: StateInfo w
   }
 
 -- TODO: Derive instances with Template Haskell
