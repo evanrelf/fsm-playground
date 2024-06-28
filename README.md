@@ -1,1 +1,1 @@
-# haskell-state-machine-example
+# fsm-playground
