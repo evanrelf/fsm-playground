@@ -7,6 +7,9 @@
 module AbstractWorkflow
   ( SomeStateTag (..)
   , SomeTransitionTag (..)
+  , SomeWorkflowInfo (..)
+  , SomeStateInfo (..)
+  , SomeTransitionInfo (..)
   , WorkflowInfo (..)
   , StateInfo (..)
   , TransitionInfo (..)
@@ -22,11 +25,15 @@ where
 import Data.Kind (Type)
 import Type.Reflection (Typeable)
 
-data SomeStateTag w where
-  SomeStateTag :: StateTag w s -> SomeStateTag w
+data SomeStateTag w = forall s. SomeStateTag (StateTag w s)
 
-data SomeTransitionTag w where
-  SomeTransitionTag :: TransitionTag w i o -> SomeTransitionTag w
+data SomeTransitionTag w = forall i o. SomeTransitionTag (TransitionTag w i o)
+
+data SomeWorkflowInfo = forall w. SomeWorkflowInfo (WorkflowInfo w)
+
+data SomeStateInfo = forall w. SomeStateInfo (StateInfo w)
+
+data SomeTransitionInfo = forall w. SomeTransitionInfo (TransitionInfo w)
 
 data WorkflowInfo w = WorkflowInfo
   { name :: String
