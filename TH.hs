@@ -1,18 +1,21 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TypeFamilies #-}
 
+{-# OPTIONS_GHC -Wall #-}
+
 module TH
   ( derive
   )
 where
 
-import Data.Kind (Type)
-import GHC.TypeError (ErrorMessage (..), TypeError)
-import Language.Haskell.TH hiding (Type)
+import Language.Haskell.TH
 
 -- This Template Haskell stuff isn't used yet. Still a work in progress; nothing
 -- to see here.
 
 -- TODO: Generate `AbstractWorkflow` instance
 derive :: Name -> Q [Dec]
-derive name = pure []
+derive name = do
+  TyConI (DataD _ _ _ _ cons _) <- reify name
+  -- cons should be `GadtC`s, possibly wrapped in `ForallC`
+  pure []
