@@ -10,6 +10,7 @@ pkgs.mkShell {
     (pkgs.ghc.withPackages (p: with p; [
       aeson
       algebraic-graphs
+      effectful-core
       hashable
       template-haskell
     ]))

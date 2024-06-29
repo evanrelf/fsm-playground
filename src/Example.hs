@@ -13,7 +13,10 @@ import Control.Monad.IO.Class (MonadIO (..))
 import Data.Function ((&))
 import Data.Functor.Compose (Compose (..))
 import Data.Functor.Identity (Identity (..))
+import Data.Monoid (Sum (..))
 import Data.Proxy (Proxy (..))
+import Effectful (Eff, (:>), runPureEff)
+import Effectful.Writer.Dynamic (Writer, runWriterLocal, tell)
 import GHC.TypeLits (KnownNat, type (-))
 import Prelude hiding (init)
 import Type.Reflection
@@ -250,10 +253,11 @@ data Yellow = Yellow
 data Green = Green
 
 data TrafficLight f i o where
-  InitRed :: TrafficLight Identity () Red
-  Go :: TrafficLight Identity Red Green
-  Slow :: TrafficLight Identity Green Yellow
-  Stop :: TrafficLight Identity Yellow Red
+  InitRed :: TrafficLight (Eff es) () Red
+  -- Count the number of times you go from red to green
+  Go :: Writer (Sum Int) :> es => TrafficLight (Eff es) Red Green
+  Slow :: TrafficLight (Eff es) Green Yellow
+  Stop :: TrafficLight (Eff es) Yellow Red
 
 instance ConcreteWorkflow TrafficLight where
   transImpl :: TrafficLight f i o -> i -> f o
@@ -263,24 +267,27 @@ instance ConcreteWorkflow TrafficLight where
     Slow -> \Green -> pure Yellow
     Stop -> \Yellow -> pure Red
 
-initRed :: State TrafficLight Red
-initRed = runIdentity $ init InitRed
+initRed :: Eff es (State TrafficLight Red)
+initRed = init InitRed
 
-go :: State TrafficLight Red -> State TrafficLight Green
-go i = runIdentity $ trans Go i
+go :: Writer (Sum Int) :> es => State TrafficLight Red -> Eff es (State TrafficLight Green)
+go i = do
+  -- Type annotation only required here because I'm not using `effectful-plugin`
+  -- for better type inference.
+  tell (Sum @Int 1)
+  trans Go i
 
-slow :: State TrafficLight Green -> State TrafficLight Yellow
-slow i = runIdentity $ trans Slow i
+slow :: State TrafficLight Green -> Eff es (State TrafficLight Yellow)
+slow i = trans Slow i
 
-stop :: State TrafficLight Yellow -> State TrafficLight Red
-stop i = runIdentity $ trans Stop i
+stop :: State TrafficLight Yellow -> Eff es (State TrafficLight Red)
+stop i = trans Stop i
 
-_exampleTrafficLight :: String
-_exampleTrafficLight =
-  let
-    red1 = initRed
-    green = go red1
-    yellow = slow green
-    red2 = stop yellow
-  in
-    case (getState red1, getState red2) of (Red, Red) -> "they're equal!"
+_exampleTrafficLight :: (String, Sum Int)
+_exampleTrafficLight = runPureEff . runWriterLocal $ do
+  red1 <- initRed
+  green <- go red1
+  yellow <- slow green
+  red2 <- stop yellow
+  case (getState red1, getState red2) of
+    (Red, Red) -> pure "they're equal!"
