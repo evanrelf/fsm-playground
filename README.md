@@ -2,16 +2,17 @@
 
 WORK IN PROGRESS, JUST HAVING FUN.
 
----
+## Tour
 
 - [src/ConcreteWorkflow.hs](./src/ConcreteWorkflow.hs): The core state machine
-  API.
+  API. States, inputs, transitions, and outputs/effects.
 
   This is all you need to define and run real state machines. Stop here if you
   don't care about introspection stuff.
 
 - [src/AbstractWorkflow.hs](./src/AbstractWorkflow.hs): A more abstract state
-  machine API.
+  machine API. Doesn't use real values for states or inputs, and doesn't perform
+  effects.
 
   Provides meta information about states and transitions for
   modeling purposes (e.g. running simulations, writing property tests,
@@ -43,7 +44,26 @@ WORK IN PROGRESS, JUST HAVING FUN.
   representation of the `Xyz` example state machine / workflow for demonstration
   purposes.
 
----
+## Notes
+
+- I think my code is more like a Mealy machine[^mealy-wiki][^mealy-haskell]
+  than a Moore machine[^moore-wiki][^moore-haskell].
+  - Next state is derived from current state and input.
+  - Output is effects performed in `f` (can output a value if you use the right
+    functor, e.g. `Const a b` or `(a, b)`).
+- Composing state machines?
+  - [Hierarchically nested states](https://en.wikipedia.org/wiki/UML_state_machine#Hierarchically_nested_states)?
+  - Transition to state of another state machine? Would conflict with current
+    plans.
+- (De)serializing state?
+- Integrating an effect system?
+
+[^mealy-wiki]: https://en.wikipedia.org/wiki/Mealy_machine
+[^mealy-haskell]: https://hackage.haskell.org/package/machines-0.7.3/docs/Data-Machine-Mealy.html
+[^moore-wiki]: https://en.wikipedia.org/wiki/Moore_machine
+[^moore-haskell]: https://hackage.haskell.org/package/machines-0.7.3/docs/Data-Machine-Moore.html
+
+## Developing
 
 1. `$ nix-shell`
 2. `$ cd src/`
