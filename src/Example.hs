@@ -10,10 +10,8 @@ module Example where
 
 import Control.Monad.IO.Class (MonadIO (..))
 import Data.Function ((&))
-import Data.Functor.Const (Const (..))
 import Data.Functor.Identity (Identity (..))
 import Data.Proxy (Proxy (..))
-import Data.Void (Void)
 import GHC.TypeLits (KnownNat, type (-))
 import Prelude hiding (init)
 import Type.Reflection
@@ -205,19 +203,14 @@ newtype Box n a = UnsafeBox a
 data TimeRelease f i o where
   Lock :: KnownNat n => Proxy n -> a -> TimeRelease Identity () (Box n a)
   Tick :: TimeRelease Identity (Box n a) (Box (n - 1) a)
-  -- Using `Const` as the functor to escape the workflow and return a plain
-  -- value (not something wrapped in `State`).
-  --
-  -- `Void` is just for good measure; it's driving the point home that the next
-  -- state will never be reached, because we return a value instead.
-  Unlock :: TimeRelease (Const a) (Box 0 a) Void
+  Unlock :: TimeRelease Identity (Box 0 a) a
 
 instance ConcreteWorkflow TimeRelease where
   transImpl :: TimeRelease f i o -> i -> f o
   transImpl = \case
     Lock _ a -> \() -> pure (UnsafeBox a)
     Tick -> \(UnsafeBox a) -> pure (UnsafeBox a)
-    Unlock -> \(UnsafeBox a) -> Const a
+    Unlock -> \(UnsafeBox a) -> pure a
 
 lock :: forall n a. KnownNat n => a -> State TimeRelease (Box n a)
 lock a = runIdentity $ init (Lock (Proxy @n) a)
@@ -226,7 +219,7 @@ tick :: State TimeRelease (Box n a) -> State TimeRelease (Box (n - 1) a)
 tick i = runIdentity $ trans Tick i
 
 unlock :: State TimeRelease (Box 0 a) -> a
-unlock i = getConst $ trans Unlock i
+unlock i = getState $ runIdentity $ trans Unlock i
 
 _exampleTimeRelease :: Bool
 _exampleTimeRelease =
