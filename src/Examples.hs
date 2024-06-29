@@ -7,7 +7,7 @@
 
 {-# OPTIONS_GHC -Wall #-}
 
-module Example where
+module Examples where
 
 import Control.Monad.IO.Class (MonadIO (..))
 import Data.Function ((&))
