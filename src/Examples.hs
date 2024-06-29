@@ -263,7 +263,9 @@ instance ConcreteWorkflow TrafficLight where
   transImpl :: TrafficLight f i o -> i -> f o
   transImpl = \case
     InitRed -> \() -> pure Red
-    Go -> \Red -> pure Green
+    -- Type annotation only required here because I'm not using
+    -- `effectful-plugin` for better type inference.
+    Go -> \Red -> tell (Sum @Int 1) *> pure Green
     Slow -> \Green -> pure Yellow
     Stop -> \Yellow -> pure Red
 
@@ -271,11 +273,7 @@ initRed :: Eff es (State TrafficLight Red)
 initRed = init InitRed
 
 go :: Writer (Sum Int) :> es => State TrafficLight Red -> Eff es (State TrafficLight Green)
-go i = do
-  -- Type annotation only required here because I'm not using `effectful-plugin`
-  -- for better type inference.
-  tell (Sum @Int 1)
-  trans Go i
+go i = trans Go i
 
 slow :: State TrafficLight Green -> Eff es (State TrafficLight Yellow)
 slow i = trans Slow i
