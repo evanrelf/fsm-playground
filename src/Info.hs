@@ -1,6 +1,8 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE NoFieldSelectors #-}
 
+{-# OPTIONS_GHC -Wall #-}
+
 module Info
   ( WorkflowInfo (..)
   , StateInfo (..)

@@ -1,6 +1,9 @@
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE TypeFamilies #-}
 
+{-# OPTIONS_GHC -Wall #-}
+{-# OPTIONS_GHC -Wno-orphans #-}
+
 module Graph
   ( dot
   )
@@ -49,7 +52,7 @@ dot info = fromString (export style info)
               , "label" := ""
               ]
             Nothing -> []
-            Just state -> []
+            Just _state -> []
       , edgeAttributes = \inputName outputName ->
           case findTransition inputName outputName of
             Nothing -> []
