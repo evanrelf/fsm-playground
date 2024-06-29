@@ -1,5 +1,8 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE DerivingStrategies #-}
+{-# LANGUAGE QuantifiedConstraints #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 {-# OPTIONS_GHC -Wall #-}
 
@@ -46,11 +49,20 @@ data SomeStateTag w
    = forall s. (AbstractWorkflow w, Typeable s)
   => SomeStateTag (StateTag w s)
 
+deriving stock instance
+  (forall s. Show (StateTag w s))
+  => Show (SomeStateTag w)
+
 data SomeTransitionTag w
    = forall i o. (AbstractWorkflow w, Typeable i, Typeable o)
   => SomeTransitionTag (TransitionTag w i o)
 
+deriving stock instance
+  (forall i o. Show (TransitionTag w i o))
+  => Show (SomeTransitionTag w)
+
 data AbstractState s = AbstractState
+  deriving stock (Show)
 
 initA :: AbstractWorkflow w => TransitionTag w () o -> AbstractState o
 initA _ = AbstractState

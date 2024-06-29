@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE TypeFamilies #-}
 
 {-# OPTIONS_GHC -Wall #-}
@@ -12,6 +13,8 @@ module ConcreteWorkflow
   )
 where
 
+import Data.Hashable (Hashable)
+
 -- A completely opaque, correct by construction container for state. Can only
 -- be constructed by calling `init` or `transition`.
 --
@@ -20,6 +23,8 @@ where
 -- guaranteed to have been produced by lawful transitions in the `MyWorkflow`
 -- workflow.
 newtype State s a = UnsafeState a
+  deriving newtype (Eq, Ord, Hashable)
+  deriving stock (Show)
 
 getState :: State s a -> a
 getState (UnsafeState a) = a
