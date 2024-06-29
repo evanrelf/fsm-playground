@@ -66,6 +66,5 @@ WORK IN PROGRESS, JUST HAVING FUN.
 ## Developing
 
 1. `$ nix-shell`
-2. `$ cd src/`
-3. `$ ghcid Main.hs`
-4. `$ runghc Main.hs | dot -Tpng -o xyz.png && open xyz.png`
+2. `$ ghcid Main.hs`
+3. `$ cabal build && cabal exec fsm-playground | dot -Tpng -o xyz.png && open xyz.png`

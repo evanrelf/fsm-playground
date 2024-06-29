@@ -5,8 +5,6 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE TypeFamilies #-}
 
-{-# OPTIONS_GHC -Wall #-}
-
 module Examples where
 
 import Control.Monad.IO.Class (MonadIO (..))

@@ -2,8 +2,6 @@
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE TypeFamilies #-}
 
-{-# OPTIONS_GHC -Wall #-}
-
 module ConcreteWorkflow
   ( State
   , getState

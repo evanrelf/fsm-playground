@@ -4,8 +4,6 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-{-# OPTIONS_GHC -Wall #-}
-
 module AbstractWorkflow
   ( AbstractWorkflow (..)
   , stateInfos
