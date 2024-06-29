@@ -1,3 +1,4 @@
+{-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE ExplicitNamespaces #-}
@@ -10,6 +11,7 @@ module Example where
 
 import Control.Monad.IO.Class (MonadIO (..))
 import Data.Function ((&))
+import Data.Functor.Compose (Compose (..))
 import Data.Functor.Identity (Identity (..))
 import Data.Proxy (Proxy (..))
 import GHC.TypeLits (KnownNat, type (-))
@@ -37,7 +39,7 @@ data Xyz f i o where
   -- | The `XToY` trans
   XToY :: Int -> Xyz Identity X Y
   -- | The `YToZ` trans
-  YToZ :: Xyz IO Y Z
+  YToZ :: Xyz (IO `Compose` (,) Int) Y Z
 
 -- TODO: Derive this `AbstractWorkflow` instance with Template Haskell
 instance AbstractWorkflow Xyz where
@@ -130,7 +132,9 @@ instance ConcreteWorkflow Xyz where
     InitX -> \() -> pure X
     InitY n -> \() -> pure (Y n)
     XToY n -> \X -> pure (Y n)
-    YToZ -> \(Y _) -> putStrLn "Z!" *> pure Z
+    YToZ -> \(Y n) -> Compose do
+      putStrLn "Z!"
+      pure (n, Z)
 
 -- Helper functions, totally optional
 
@@ -147,8 +151,8 @@ initY n = runIdentity $ init (InitY n)
 xToY :: Int -> State Xyz X -> State Xyz Y
 xToY n i = runIdentity $ trans (XToY n) i
 
-yToZ :: MonadIO m => State Xyz Y -> m (State Xyz Z)
-yToZ i = liftIO $ trans YToZ i
+yToZ :: MonadIO m => State Xyz Y -> m (Int, State Xyz Z)
+yToZ i = liftIO $ getCompose $ trans YToZ i
 
 _exampleXyzA :: AbstractState Z
 _exampleXyzA =
@@ -159,7 +163,7 @@ _exampleXyzA =
   in
     z
 
-_exampleXyzC :: IO (State Xyz Z)
+_exampleXyzC :: IO (Int, State Xyz Z)
 _exampleXyzC =
   let
     x = initX
