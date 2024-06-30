@@ -34,6 +34,7 @@
             packages = [
               pkgs.cabal-install
               pkgs.ghciwatch-compat-ghcid
+              pkgs.graphviz
             ];
           };
       };
