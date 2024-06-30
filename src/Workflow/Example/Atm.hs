@@ -47,6 +47,13 @@ newtype Dollars = Dollars Word
 
 --------------------------------------------------------------------------------
 -- BANK EFFECT
+--
+-- Models some basic bank-y operations as an effect with the `effectful` effect
+-- system library.
+--
+-- Only an in-memory interpretation is provided here (`runBank`) but you could
+-- imagine this effect being interpreted in other ways, e.g. making API calls or
+-- talking to a database.
 --------------------------------------------------------------------------------
 
 -- Not secure, just a toy example :-)
@@ -62,6 +69,8 @@ data BankError
   deriving anyclass (Exception)
 
 data Bank :: Effect where
+  -- Prefixing these with `Bank*` to avoid conflicts with the workflow data
+  -- constructors below.
   BankAuthenticate :: Card -> Pin -> Bank m (Maybe UserId)
   BankGetBalance :: UserId -> Bank m Dollars
   BankWithdraw :: UserId -> Dollars -> Bank m ()
@@ -108,6 +117,19 @@ runBank initialState = reinterpret (runStateShared initialState) \_env -> \case
 
 --------------------------------------------------------------------------------
 -- ATM WORKFLOW
+--
+-- Models some basic interactions you could have with an ATM. Uses the `Bank`
+-- effect defined above to allow reinterpretation in a testing context (or
+-- whatever).
+--
+-- In other words: `AbstractWorkflow` lets you _talk_ about the states and
+-- transitions in the abstract - what are they called, which transitions are
+-- valid, etc. - but `ConcreteWorkflow` + an effects system lets you _execute
+-- programs_ in a (more) abstract way.
+--
+-- You can write a workflow that works in production with real data launching
+-- real nukes, or in a simulation with stubbed out effects + extra logging +
+-- extra bookkeeping.
 --------------------------------------------------------------------------------
 
 data Off = Off
@@ -122,7 +144,86 @@ data Menu = Menu
   { userId :: UserId
   }
 
+-- These might look a little scary, but users don't have to work with this
+-- type, they just use the helper functions you define atop these
+-- (e.g. `enterPin`).
+--
+-- If you do need to work with this type, don't fret. There's only a few things
+-- you need to know. Let's look at `AtmEnterPin` as an example:
+--
+-- @
+--
+--                1             2          3                        4           5
+--                |             |          |                        |           |
+--                v             v          v                        v           v
+--                ~~~~~~~~~~    ~~~        ~~~~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~ ~~~~
+-- AtmEnterPin :: Bank :> es => Pin -> Atm (Eff es `Compose` Maybe) AwaitingPin Menu
+-- @
+--
+-- First, an overview:
+--
+-- * We're starting in the `AwaitingPin` state (4).
+-- * We're receiving a `Pin` as input (2).
+-- * We're transitioning to the `Menu` state (5).
+-- * While transitioning, we're allowed to perform `Bank` effects (we need
+--   to provide the card and pin to authenticate with the bank) (1 and 3).
+-- * We may fail to transition to the `Menu` state (the card and/or pin may
+--   be incorrect), so the result is wrapped in a `Maybe` (3).
+--
+-- Now in greater depth:
+--
+-- 1. These are constraints.
+--
+--    If you have any type parameters that aren't pinned to a concrete
+--    type (e.g. `Menu` is concrete but `es` is polymorphic), you can add
+--    constraints to limit which types are acceptable.
+--
+--    But constraints are liberating. By knowing that the list of effects `es`
+--    contains the `Bank` effect, we know that the `AtmEnterPin` transition
+--    has access to `Bank` stuff, e.g. `BankAuthenticate`. We'll want to
+--    authenticate with the pin we receive as input.
+--
+-- 2. This is an input.
+--
+--    It's saying "in addition to the current state, I also need this extra
+--    piece of information in order to perform this transition". So in this
+--    case, to perform the `AtmEnterPin` transition, we need the `Pin`.
+--
+-- 3. This is the context in which the transition is performed.
+--
+--    This is how you can perform effects, or return additional outputs
+--    (besides the new state). The only requirement for this type is that
+--    it's a functor.
+--
+--      * If you don't need to perform any effects or return any extra
+--        information, you should choose `Identity`. It's a simple wrapper that
+--        does nothing and is trivially unwrapped.
+--
+--      * If you want to return an output in addition to your state, you should
+--        choose `(,) a` (a tuple) or something equivalent. The syntax there is
+--        weird, so just think of the result you'll get from the transition as
+--        `(a, s)`, where `a` is your extra data, and `s` is your new state.
+--
+--      * If you want to check a dynamic condition (something at runtime) and
+--        only transition if that condition is satisfied, you could choose
+--        `Either e` or `Maybe`.
+--
+--      * If you want to perform some effects, there's a number of types you
+--        could choose. Some examples are `IO`, `State`, `Writer`, `ST s`, etc.
+--
+--      * If you want some combination of the above, you'll want `Compose`. It
+--        allows you to apply multiple wrappers. For example,
+--        @IO `Compose` Maybe@ will result in `IO (Maybe (State Atm s))` (where
+--        `s` is the type of the next state after performing the transition).
+--
+-- 4. This is the input/initial state.
+--
+-- 5. This is the output/final state.
+--
+--    This is what's wrapped in the type we discussed in #3 above.
 data Atm f i o where
+  -- Prefixing these with `Atm*` to avoid conflicts with the effect data
+  -- constructors above.
   AtmNew :: Atm (Eff es) () Off
   AtmPowerOn :: Atm (Eff es) Off AwaitingCard
   AtmInsertCard :: Card -> Atm (Eff es) AwaitingCard AwaitingPin
