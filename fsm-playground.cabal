@@ -41,6 +41,7 @@ library
     Workflow.Abstract
     Workflow.Abstract.TH
     Workflow.Concrete
+    Workflow.Example.Xyz
     Workflow.Graph
     Workflow.Info
 
