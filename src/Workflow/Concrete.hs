@@ -2,6 +2,7 @@
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 module Workflow.Concrete
   ( ConcreteWorkflow (..)
@@ -13,6 +14,7 @@ module Workflow.Concrete
 where
 
 import Data.Hashable (Hashable)
+import GHC.Records (HasField (..))
 
 -- | If you describe how to modify your underlying state data for all
 -- transitions in this workflow, then you get type-safe workflow transitions
@@ -36,6 +38,9 @@ transC w (UnsafeState i) = UnsafeState <$> transImpl w i
 newtype State w a = UnsafeState a
   deriving newtype (Eq, Ord, Hashable)
   deriving stock (Show)
+
+instance HasField x r a => HasField x (State w r) a where
+  getField (UnsafeState r) = getField @x r
 
 -- | Read-only pattern for unwrapping `State`s. Cannot be used to construct new
 -- `State`s.
