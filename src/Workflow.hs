@@ -1,12 +1,12 @@
 module Workflow
-  ( module Workflow.Abstract
-  , module Workflow.Abstract.TH
-  , module Workflow.Concrete
-  , module Workflow.Info
-  , Workflow
+  ( Workflow
   , init
   , trans
   , stateTag
+  , module Workflow.Abstract
+  , module Workflow.Abstract.TH
+  , module Workflow.Concrete
+  , module Workflow.Info
   )
 where
 
