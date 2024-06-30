@@ -19,11 +19,18 @@ import GHC.TypeLits (KnownNat, type (-))
 import Prelude hiding (init)
 import Workflow
 
+-- | An opaque box that can only be manipulated via the `TimeRelease` workflow.
 newtype Box n a = UnsafeBox a
 
+-- | Cannot implement `AbstractWorkflow` for this workflow as written, because
+-- the number of state types is unbounded (you can set `n` to any natural
+-- number).
 data TimeRelease f i o where
+  -- | Lock a value `a` away for `n` ticks.
   Lock :: KnownNat n => Proxy n -> a -> TimeRelease Identity () (Box n a)
+  -- | Tick a box's timer down by 1.
   Tick :: TimeRelease Identity (Box n a) (Box (n - 1) a)
+  -- | Unlock a box whose timer has finished and return the value inside.
   Unlock :: TimeRelease Identity (Box 0 a) a
 
 instance ConcreteWorkflow TimeRelease where

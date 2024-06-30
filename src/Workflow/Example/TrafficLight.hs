@@ -9,9 +9,6 @@ import Effectful.Writer.Dynamic (Writer, runWriterLocal, tell)
 import Prelude hiding (init)
 import Workflow
 
--- TODO: Embed a `TimeRelease` into each `TrafficLight` state, to mimic the time
--- you wait at a traffic light, and demonstrate combining workflows.
-
 data Red = Red
 
 data Yellow = Yellow
@@ -19,11 +16,11 @@ data Yellow = Yellow
 data Green = Green
 
 data TrafficLight f i o where
-  InitRed :: TrafficLight (Eff es) () Red
+  InitRed :: Applicative f => TrafficLight f () Red
   -- Count the number of times you go from red to green
   Go :: Writer (Sum Int) :> es => TrafficLight (Eff es) Red Green
-  Slow :: TrafficLight (Eff es) Green Yellow
-  Stop :: TrafficLight (Eff es) Yellow Red
+  Slow :: Applicative f => TrafficLight f Green Yellow
+  Stop :: Applicative f => TrafficLight f Yellow Red
 
 instance ConcreteWorkflow TrafficLight where
   transImpl :: TrafficLight f i o -> i -> f o
