@@ -2,9 +2,9 @@ module Workflow
   ( Workflow
   , init
   , trans
+  , module Workflow.Concrete
   , module Workflow.Abstract
   , module Workflow.Abstract.TH
-  , module Workflow.Concrete
   , module Workflow.Info
   )
 where
