@@ -1,22 +1,13 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE ExplicitNamespaces #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Examples
-  ( module Examples
-  , module Workflow.Example.TimeRelease
-  , module Workflow.Example.Xyz
-  )
-where
+module Workflow.Example.TrafficLight where
 
 import Data.Monoid (Sum (..))
 import Effectful (Eff, (:>), runPureEff)
 import Effectful.Writer.Dynamic (Writer, runWriterLocal, tell)
 import Prelude hiding (init)
 import Workflow
-import Workflow.Example.Xyz
-import Workflow.Example.TimeRelease
 
 -- TODO: Embed a `TimeRelease` into each `TrafficLight` state, to mimic the time
 -- you wait at a traffic light, and demonstrate combining workflows.

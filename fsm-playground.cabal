@@ -36,12 +36,12 @@ library
     , hashable
     , template-haskell
   exposed-modules:
-    Examples
     Workflow
     Workflow.Abstract
     Workflow.Abstract.TH
     Workflow.Concrete
     Workflow.Example.TimeRelease
+    Workflow.Example.TrafficLight
     Workflow.Example.Xyz
     Workflow.Info
 

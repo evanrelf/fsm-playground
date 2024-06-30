@@ -1,7 +1,7 @@
 module Main (main) where
 
-import Examples
 import Workflow
+import Workflow.Example.Xyz
 
 main :: IO ()
 main = do
