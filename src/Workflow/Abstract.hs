@@ -6,7 +6,7 @@
 
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
-module AbstractWorkflow
+module Workflow.Abstract
   ( AbstractWorkflow (..)
   , stateInfos
   , transitionInfos

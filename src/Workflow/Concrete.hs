@@ -2,7 +2,7 @@
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module ConcreteWorkflow
+module Workflow.Concrete
   ( State
   , getState
   , ConcreteWorkflow (..)

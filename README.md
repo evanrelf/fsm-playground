@@ -4,13 +4,13 @@ WORK IN PROGRESS, JUST HAVING FUN.
 
 ## Tour
 
-- [src/ConcreteWorkflow.hs](./src/ConcreteWorkflow.hs): The core state machine
+- [src/Workflow/Concrete.hs](./src/Workflow/Concrete.hs): The core state machine
   API. States, inputs, transitions, and outputs/effects.
 
   This is all you need to define and run real state machines. Stop here if you
   don't care about introspection stuff.
 
-- [src/AbstractWorkflow.hs](./src/AbstractWorkflow.hs): A more abstract state
+- [src/Workflow/Abstract.hs](./src/Workflow/Abstract.hs): A more abstract state
   machine API. Doesn't use real values for states or inputs, and doesn't perform
   effects.
 

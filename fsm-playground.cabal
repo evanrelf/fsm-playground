@@ -36,14 +36,13 @@ library
     , hashable
     , template-haskell
   exposed-modules:
-    AbstractWorkflow
-    ConcreteWorkflow
     Examples
     Graph
     Info
-    Main
     TH
     Workflow
+    Workflow.Abstract
+    Workflow.Concrete
 
 executable fsm-playground
   import:
