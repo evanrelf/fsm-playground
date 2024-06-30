@@ -62,7 +62,7 @@ deriving stock instance
   (forall i o. Show (TransitionTag w i o))
   => Show (SomeTransitionTag w)
 
-data AbstractState w a = AbstractState
+data AbstractState w a = UnsafeAbstractState
   deriving stock (Show, Eq, Ord)
 
 instance Hashable (AbstractState w a) where
@@ -70,7 +70,7 @@ instance Hashable (AbstractState w a) where
   hashWithSalt = defaultHashWithSalt
 
 initA :: AbstractWorkflow w => TransitionTag w () o -> AbstractState w o
-initA _ = AbstractState
+initA _ = UnsafeAbstractState
 
 transA :: AbstractWorkflow w => TransitionTag w i o -> AbstractState w i -> AbstractState w o
-transA _ AbstractState = AbstractState
+transA _ _ = UnsafeAbstractState
