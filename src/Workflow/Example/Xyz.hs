@@ -31,6 +31,8 @@ data Xyz f i o where
   XToY :: Int -> Xyz Identity X Y
   -- | The `YToZ` trans
   YToZ :: Xyz (IO `Compose` (,) Int) Y Z
+  -- ^ Shows how you'd perform effects (`IO`) and return an output value
+  -- (`(,) Int`).
 
 -- TODO: Derive this `AbstractWorkflow` instance with Template Haskell
 instance AbstractWorkflow Xyz where
@@ -126,7 +128,7 @@ instance ConcreteWorkflow Xyz where
 
 -- Helper functions, totally optional
 
--- `X` is just data, `State s X` is a _state_ with that data. The latter is
+-- `X` is just data, `State w X` is a _state_ with that data. The latter is
 -- correct by construction. In other words, if data is wrapped with `State`, you
 -- know it's in a valid state and can only change via valid transitions.
 
@@ -162,7 +164,7 @@ _exampleXyzC =
 
 --------------------------------------------------------------------------------
 
--- Attempting to obtain an `State s Z` with `init` rather than `trans` by
+-- Attempting to obtain an `State w Z` with `init` rather than `trans` by
 -- creating a new workflow with the same data where that's a legal operation.
 
 data EvilXyz f i o where
