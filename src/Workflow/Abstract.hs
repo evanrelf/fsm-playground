@@ -32,7 +32,7 @@ class AbstractWorkflow w where
   data TransitionTag w :: Type -> Type -> Type
   states :: [SomeStateTag w]
   transitions :: [SomeTransitionTag w]
-  stateTag' :: (Typeable a, Typeable b) => proxy a -> Maybe (StateTag w b)
+  stateTag' :: Typeable a => Maybe (StateTag w a)
   transitionTag :: w f i o -> TransitionTag w i o
   workflowInfo :: WorkflowInfo
   stateInfo :: StateTag w s -> StateInfo

@@ -111,15 +111,12 @@ instance AbstractWorkflow Xyz where
         , output = stateInfo SZ
         }
 
-  stateTag' :: forall a b proxy. (Typeable a, Typeable b) => proxy a -> Maybe (StateTag Xyz b)
-  stateTag' _ =
-    case eqTypeRep (TypeRep @a) (TypeRep @b) of
-      Nothing -> Nothing
-      Just HRefl
-        | Just HRefl <- eqTypeRep (TypeRep @a) (TypeRep @X) -> Just SX
-        | Just HRefl <- eqTypeRep (TypeRep @a) (TypeRep @Y) -> Just SY
-        | Just HRefl <- eqTypeRep (TypeRep @a) (TypeRep @Z) -> Just SZ
-        | otherwise -> Nothing
+  stateTag' :: forall a. Typeable a => Maybe (StateTag Xyz a)
+  stateTag'
+    | Just HRefl <- eqTypeRep (TypeRep @a) (TypeRep @X) = Just SX
+    | Just HRefl <- eqTypeRep (TypeRep @a) (TypeRep @Y) = Just SY
+    | Just HRefl <- eqTypeRep (TypeRep @a) (TypeRep @Z) = Just SZ
+    | otherwise = Nothing
 
   transitionTag = \case
     InitX -> SInitX
