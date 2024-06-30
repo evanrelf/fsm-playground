@@ -7,6 +7,7 @@ module Workflow.Abstract.TH
 where
 
 import Language.Haskell.TH
+import Workflow.Abstract ()
 
 -- This Template Haskell stuff isn't used yet. Still a work in progress; nothing
 -- to see here.
