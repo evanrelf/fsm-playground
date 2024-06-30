@@ -13,6 +13,8 @@ import Workflow.Abstract ()
 -- to see here.
 
 -- TODO: Generate `AbstractWorkflow` instance
+-- TODO: Generate `Enum` instances for `SomeStateTag` and `SomeTransitionTag`
+-- TODO: Generate `IsLabel` instances for `StateTag` and `TransitionTag`
 derive :: Name -> Q [Dec]
 derive name = do
   TyConI (DataD _ _ _ _ _cons _) <- reify name
