@@ -20,11 +20,11 @@ import Data.Hashable (Hashable)
 -- modify arbitrarily, but `State MyWorkflow MyState` is a `MyState` that is
 -- guaranteed to have been produced by lawful transitions in the `MyWorkflow`
 -- workflow.
-newtype State s a = UnsafeState a
+newtype State w a = UnsafeState a
   deriving newtype (Eq, Ord, Hashable)
   deriving stock (Show)
 
-getState :: State s a -> a
+getState :: State w a -> a
 getState (UnsafeState a) = a
 
 class ConcreteWorkflow w where
