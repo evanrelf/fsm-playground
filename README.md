@@ -45,6 +45,10 @@ WORK IN PROGRESS, JUST HAVING FUN.
   representation of the `Xyz` example state machine / workflow for demonstration
   purposes.
 
+- I'm generating Haddocks manually and uploading them
+  [here](https://s3.evanrelf.com/fsm-playground/). Last updated 2024-06-30 at
+  5 PM PT.
+
 ## Developing
 
 1. `$ nix develop`
