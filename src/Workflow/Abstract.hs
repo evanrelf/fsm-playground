@@ -10,13 +10,11 @@ module Workflow.Abstract
   ( AbstractWorkflow (..)
   , stateInfos
   , transitionInfos
-
-  , SomeStateTag (..)
-  , SomeTransitionTag (..)
-
-  , AbstractState
   , initA
   , transA
+  , AbstractState
+  , SomeStateTag (..)
+  , SomeTransitionTag (..)
   )
 where
 
@@ -46,21 +44,11 @@ transitionInfos :: forall w. AbstractWorkflow w => [TransitionInfo]
 transitionInfos =
   map (\(SomeTransitionTag tag) -> transitionInfo tag) (transitions @w)
 
-data SomeStateTag w
-   = forall s. (AbstractWorkflow w, Typeable s)
-  => SomeStateTag (StateTag w s)
+initA :: AbstractWorkflow w => TransitionTag w () o -> AbstractState w o
+initA _ = UnsafeAbstractState
 
-deriving stock instance
-  (forall s. Show (StateTag w s))
-  => Show (SomeStateTag w)
-
-data SomeTransitionTag w
-   = forall i o. (AbstractWorkflow w, Typeable i, Typeable o)
-  => SomeTransitionTag (TransitionTag w i o)
-
-deriving stock instance
-  (forall i o. Show (TransitionTag w i o))
-  => Show (SomeTransitionTag w)
+transA :: AbstractWorkflow w => TransitionTag w i o -> AbstractState w i -> AbstractState w o
+transA _ _ = UnsafeAbstractState
 
 data AbstractState w a = UnsafeAbstractState
   deriving stock (Show, Eq, Ord)
@@ -69,8 +57,16 @@ instance Hashable (AbstractState w a) where
   hash _ = hash ()
   hashWithSalt = defaultHashWithSalt
 
-initA :: AbstractWorkflow w => TransitionTag w () o -> AbstractState w o
-initA _ = UnsafeAbstractState
+data SomeStateTag w where
+  SomeStateTag :: (AbstractWorkflow w, Typeable s) => StateTag w s -> SomeStateTag w
 
-transA :: AbstractWorkflow w => TransitionTag w i o -> AbstractState w i -> AbstractState w o
-transA _ _ = UnsafeAbstractState
+deriving stock instance
+  (forall s. Show (StateTag w s))
+  => Show (SomeStateTag w)
+
+data SomeTransitionTag w where
+  SomeTransitionTag :: (AbstractWorkflow w, Typeable i, Typeable o) => TransitionTag w i o -> SomeTransitionTag w
+
+deriving stock instance
+  (forall i o. Show (TransitionTag w i o))
+  => Show (SomeTransitionTag w)
