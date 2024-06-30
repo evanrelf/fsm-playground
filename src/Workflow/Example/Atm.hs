@@ -33,22 +33,26 @@ import Effectful.TH (makeEffect)
 import Prelude hiding (init)
 import Workflow
 
+newtype Card = Card String
+  deriving newtype (Eq, Ord)
+
+newtype Pin = Pin String
+  deriving newtype (Eq, Ord)
+
+newtype UserId = UserId String
+  deriving newtype (Eq, Ord)
+
+newtype Dollars = Dollars Word
+  deriving newtype (Show, Eq, Ord, Num)
+
 --------------------------------------------------------------------------------
 -- BANK EFFECT
 --------------------------------------------------------------------------------
 
-type Card = String
-
-type Pin = String
-
-type UserId = String
-
-type Dollars = Word
-
 -- Not secure, just a toy example :-)
 data BankState = BankState
   { credentials :: Map (Card, Pin) UserId
-  , balances :: Map UserId Word
+  , balances :: Map UserId Dollars
   }
 
 data BankError
@@ -59,9 +63,9 @@ data BankError
 
 data Bank :: Effect where
   BankAuthenticate :: Card -> Pin -> Bank m (Maybe UserId)
-  BankGetBalance :: UserId -> Bank m Word
-  BankWithdraw :: UserId -> Word -> Bank m ()
-  BankDeposit :: UserId -> Word -> Bank m ()
+  BankGetBalance :: UserId -> Bank m Dollars
+  BankWithdraw :: UserId -> Dollars -> Bank m ()
+  BankDeposit :: UserId -> Dollars -> Bank m ()
 
 makeEffect ''Bank
 
@@ -110,18 +114,22 @@ data Off = Off
 
 data AwaitingCard = AwaitingCard
 
-data AwaitingPin = AwaitingPin Card
+data AwaitingPin = AwaitingPin
+  { card :: Card
+  }
 
-data Menu = Menu UserId
+data Menu = Menu
+  { userId :: UserId
+  }
 
 data Atm f i o where
   AtmNew :: Atm (Eff es) () Off
   AtmPowerOn :: Atm (Eff es) Off AwaitingCard
   AtmInsertCard :: Card -> Atm (Eff es) AwaitingCard AwaitingPin
-  AtmEnterPin :: Bank :> es => Card -> Atm (Eff es `Compose` Maybe) AwaitingPin Menu
-  AtmWithdraw :: Bank :> es => Word -> Atm (Eff es) Menu Menu
-  AtmDeposit :: Bank :> es => Word -> Atm (Eff es) Menu Menu
-  AtmGetBalance :: Bank :> es => Atm (Eff es `Compose` ((,) Word)) Menu Menu
+  AtmEnterPin :: Bank :> es => Pin -> Atm (Eff es `Compose` Maybe) AwaitingPin Menu
+  AtmWithdraw :: Bank :> es => Dollars -> Atm (Eff es) Menu Menu
+  AtmDeposit :: Bank :> es => Dollars -> Atm (Eff es) Menu Menu
+  AtmGetBalance :: Bank :> es => Atm (Eff es `Compose` ((,) Dollars)) Menu Menu
   AtmExit :: Atm (Eff es) Menu AwaitingCard
   AtmPowerOff :: Atm (Eff es) i Off
 
@@ -160,6 +168,7 @@ instance ConcreteWorkflow Atm where
     AtmPowerOff -> \_ -> do
       pure Off
 
+-- TODO: Derive `AbstractWorkflow` instance with Template Haskell
 
 new :: Eff es (State Atm Off)
 new = init AtmNew
@@ -173,13 +182,13 @@ insertCard card state = trans (AtmInsertCard card) state
 enterPin :: Bank :> es => Pin -> State Atm AwaitingPin -> Eff es (Maybe (State Atm Menu))
 enterPin pin state = getCompose $ trans (AtmEnterPin pin) state
 
-withdraw :: Bank :> es => Word -> State Atm Menu -> Eff es (State Atm Menu)
+withdraw :: Bank :> es => Dollars -> State Atm Menu -> Eff es (State Atm Menu)
 withdraw amount state = trans (AtmWithdraw amount) state
 
-deposit :: Bank :> es => Word -> State Atm Menu -> Eff es (State Atm Menu)
+deposit :: Bank :> es => Dollars -> State Atm Menu -> Eff es (State Atm Menu)
 deposit amount state = trans (AtmDeposit amount) state
 
-getBalance :: Bank :> es => State Atm Menu -> Eff es (Word, State Atm Menu)
+getBalance :: Bank :> es => State Atm Menu -> Eff es (Dollars, State Atm Menu)
 getBalance state = getCompose $ trans AtmGetBalance state
 
 exit :: State Atm Menu -> Eff es (State Atm AwaitingCard)
@@ -196,8 +205,8 @@ demo :: IO ()
 demo = do
   let bankState =
         BankState
-          { credentials = Map.singleton ("card", "pin") "evan"
-          , balances = Map.singleton "evan" 200
+          { credentials = Map.singleton (Card "card", Pin "pin") (UserId "evan")
+          , balances = Map.singleton (UserId "evan") 200
           }
 
   program
@@ -216,8 +225,8 @@ program = do
 
   atm :: State Atm Off <- new
   atm :: State Atm AwaitingCard <- powerOn atm
-  atm :: State Atm AwaitingPin <- insertCard "card" atm
-  mAtm :: Maybe (State Atm Menu) <- enterPin "pin" atm
+  atm :: State Atm AwaitingPin <- insertCard (Card "card") atm
+  mAtm :: Maybe (State Atm Menu) <- enterPin (Pin "pin") atm
 
   -- We'll discharge the `Nothing` here to keep the example simple. You'd wanna
   -- handle this properly in real programs, of course.
