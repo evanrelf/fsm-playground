@@ -21,24 +21,25 @@ WORK IN PROGRESS, JUST HAVING FUN.
   In the future, you'll be able to cash in any `ConcreteWorkflow` for a free
   `AbstractWorkflow` instance using Template Haskell.
 
-- [Workflow.Abstract.TH](./src/TH.hs): Template Haskell to generate
-  `AbstractWorkflow` instance boilerplate (work in progress).
+- [Workflow.Abstract.TH](./src/Workflow/Abstract/TH.hs): Template Haskell to
+  generate `AbstractWorkflow` instance boilerplate (work in progress).
 
-- [Workflow.Info](./src/Info.hs): Plain data describing a state machine. This
-  info is available for all abstract workflows, but you can also generate and
-  manipulate this however you like, independent of all the other code here.
+- [Workflow.Info](./src/Workflow/Info.hs): Plain data describing a state
+  machine. This info is available for all abstract workflows, but you can also
+  generate and manipulate this however you like, independent of all the other
+  code here.
 
-- [Workflow.Graph](./src/Graph.hs): Converts the state machine info described
-  above into a graph data structure. You can do all sorts of cool graph things
-  with the `algebraic-graphs` library, including generating GraphViz DOT files
-  with the `dot` function.
+  Also provides `ToGraph` instances, so you can do all sorts of cool graph
+  things with the `algebraic-graphs` library, including generating GraphViz DOT
+  files with the `dot` function.
 
 - [Workflow](./src/Workflow.hs): The main module you'd export. Mostly re-exports
   all the previous modules, but also defines an umbrella `Workflow` concept for
   state machines with both concrete and abstract representations.
 
-- [Example](./src/Example.hs): Lots of examples (pretty trivial ones so far) of
-  state machines and their associated code.
+- [Examples](./src/Examples.hs) + [Workflow.Example.*](./src/Workflow/Example/):
+  Lots of examples (pretty trivial ones so far) of state machines and their
+  associated code.
 
 - [Main](./src/Main.hs): Tiny executable that prints the GraphViz DOT
   representation of the `Xyz` example state machine / workflow for demonstration
