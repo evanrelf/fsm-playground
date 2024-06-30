@@ -5,10 +5,10 @@
 
 module Workflow.Concrete
   ( ConcreteWorkflow (..)
-  , State (State)
-  , getState
   , initC
   , transC
+  , State (State)
+  , getState
   )
 where
 
@@ -19,6 +19,12 @@ import Data.Hashable (Hashable)
 -- with `State` + `initC` + `transC`.
 class ConcreteWorkflow w where
   transImpl :: Functor f => w f i o -> i -> f o
+
+initC :: (ConcreteWorkflow w, Functor f) => w f () o -> f (State w o)
+initC w = UnsafeState <$> transImpl w ()
+
+transC :: (ConcreteWorkflow w, Functor f) => w f i o -> State w i -> f (State w o)
+transC w (UnsafeState i) = UnsafeState <$> transImpl w i
 
 -- | A completely opaque, correct by construction container for state. Can only
 -- be constructed by calling `initC` or `transC`.
@@ -45,9 +51,3 @@ pattern State a <- UnsafeState a
 
 getState :: State w a -> a
 getState (UnsafeState a) = a
-
-initC :: (ConcreteWorkflow w, Functor f) => w f () o -> f (State w o)
-initC w = UnsafeState <$> transImpl w ()
-
-transC :: (ConcreteWorkflow w, Functor f) => w f i o -> State w i -> f (State w o)
-transC w (UnsafeState i) = UnsafeState <$> transImpl w i
