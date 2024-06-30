@@ -32,12 +32,15 @@ library
   build-depends:
     , aeson
     , algebraic-graphs
+    , bytestring
     , containers
+    , effectful
     , effectful-core
     , effectful-plugin
     , effectful-th
     , hashable
     , template-haskell
+    , text
   exposed-modules:
     Workflow
     Workflow.Abstract
