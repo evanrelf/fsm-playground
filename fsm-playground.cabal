@@ -42,7 +42,6 @@ library
     Workflow.Abstract.TH
     Workflow.Concrete
     Workflow.Example.Xyz
-    Workflow.Graph
     Workflow.Info
 
 executable fsm-playground

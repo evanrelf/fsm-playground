@@ -3,7 +3,6 @@ module Workflow
   , module Workflow.Abstract.TH
   , module Workflow.Concrete
   , module Workflow.Info
-  , module Workflow.Graph
   , Workflow
   , init
   , trans
@@ -17,7 +16,6 @@ import Type.Reflection (Typeable)
 import Workflow.Abstract
 import Workflow.Abstract.TH
 import Workflow.Concrete
-import Workflow.Graph
 import Workflow.Info
 
 type Workflow w = (AbstractWorkflow w, ConcreteWorkflow w)
