@@ -155,7 +155,7 @@ xToY n i = runIdentity $ trans (XToY n) i
 yToZ :: MonadIO m => State Xyz Y -> m (Int, State Xyz Z)
 yToZ i = liftIO $ getCompose $ trans YToZ i
 
-_exampleXyzA :: AbstractState Z
+_exampleXyzA :: AbstractState Xyz Z
 _exampleXyzA =
   let
     x = initA SInitX

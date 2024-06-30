@@ -4,6 +4,8 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
 
+{-# OPTIONS_GHC -Wno-redundant-constraints #-}
+
 module AbstractWorkflow
   ( AbstractWorkflow (..)
   , stateInfos
@@ -59,11 +61,11 @@ deriving stock instance
   (forall i o. Show (TransitionTag w i o))
   => Show (SomeTransitionTag w)
 
-data AbstractState s = AbstractState
+data AbstractState w a = AbstractState
   deriving stock (Show)
 
-initA :: AbstractWorkflow w => TransitionTag w () o -> AbstractState o
+initA :: AbstractWorkflow w => TransitionTag w () o -> AbstractState w o
 initA _ = AbstractState
 
-transA :: AbstractWorkflow w => TransitionTag w i o -> AbstractState i -> AbstractState o
+transA :: AbstractWorkflow w => TransitionTag w i o -> AbstractState w i -> AbstractState w o
 transA _ AbstractState = AbstractState
