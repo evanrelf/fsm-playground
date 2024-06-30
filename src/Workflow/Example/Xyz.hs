@@ -101,8 +101,8 @@ instance AbstractWorkflow Xyz where
         , output = stateInfo SZ
         }
 
-  stateTag' :: forall a. Typeable a => Maybe (StateTag Xyz a)
-  stateTag'
+  stateTag :: forall a. Typeable a => Maybe (StateTag Xyz a)
+  stateTag
     | Just HRefl <- eqTypeRep (TypeRep @a) (TypeRep @X) = Just SX
     | Just HRefl <- eqTypeRep (TypeRep @a) (TypeRep @Y) = Just SY
     | Just HRefl <- eqTypeRep (TypeRep @a) (TypeRep @Z) = Just SZ
