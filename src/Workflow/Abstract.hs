@@ -21,8 +21,8 @@ module Workflow.Abstract
 where
 
 import Data.Kind (Type)
-import Info
 import Type.Reflection (Typeable)
+import Workflow.Info
 
 -- TODO: Derive instances with Template Haskell
 -- TODO: States and transitions need to be enumerable and bounded (not

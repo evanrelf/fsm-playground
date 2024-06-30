@@ -3,18 +3,17 @@
 
 {-# OPTIONS_GHC -Wno-orphans #-}
 
-module Graph
+module Workflow.Graph
   ( dot
   )
 where
-
-import Info
 
 import Algebra.Graph.Class
 import Algebra.Graph.Export.Dot
 import Algebra.Graph.ToGraph
 import Data.List (find)
 import Data.String (IsString (..))
+import Workflow.Info
 
 instance ToGraph WorkflowInfo where
   type ToVertex WorkflowInfo = String

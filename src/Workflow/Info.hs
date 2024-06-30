@@ -3,7 +3,7 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE NoFieldSelectors #-}
 
-module Info
+module Workflow.Info
   ( WorkflowInfo (..)
   , StateInfo (..)
   , TransitionInfo (..)

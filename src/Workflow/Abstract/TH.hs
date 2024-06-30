@@ -1,7 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module TH
+module Workflow.Abstract.TH
   ( derive
   )
 where

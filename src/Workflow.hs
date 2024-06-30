@@ -1,9 +1,9 @@
 module Workflow
   ( module Workflow.Abstract
+  , module Workflow.Abstract.TH
   , module Workflow.Concrete
-  , module Info
-  , module Graph
-  , module TH
+  , module Workflow.Info
+  , module Workflow.Graph
   , Workflow
   , init
   , trans
@@ -13,13 +13,13 @@ where
 
 import Data.Maybe (fromMaybe)
 import Data.Proxy (Proxy (..))
-import Graph
-import Info
 import Prelude hiding (init)
-import TH
 import Type.Reflection (Typeable)
 import Workflow.Abstract
+import Workflow.Abstract.TH
 import Workflow.Concrete
+import Workflow.Graph
+import Workflow.Info
 
 type Workflow w = (AbstractWorkflow w, ConcreteWorkflow w)
 

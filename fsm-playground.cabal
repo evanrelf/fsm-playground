@@ -37,12 +37,12 @@ library
     , template-haskell
   exposed-modules:
     Examples
-    Graph
-    Info
-    TH
     Workflow
     Workflow.Abstract
+    Workflow.Abstract.TH
     Workflow.Concrete
+    Workflow.Graph
+    Workflow.Info
 
 executable fsm-playground
   import:
