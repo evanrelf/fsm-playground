@@ -1,9 +1,10 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DerivingStrategies #-}
+{-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE TypeFamilies #-}
 
 module Workflow.Concrete
-  ( State
+  ( State (State)
   , getState
   , ConcreteWorkflow (..)
   , initC
@@ -23,6 +24,15 @@ import Data.Hashable (Hashable)
 newtype State w a = UnsafeState a
   deriving newtype (Eq, Ord, Hashable)
   deriving stock (Show)
+
+-- | Read-only pattern for unwrapping `State`s. Cannot be used to construct new
+-- `State`s.
+--
+-- Pattern matching with this is equivalent to calling `getState`.
+pattern State :: a -> State w a
+pattern State a <- UnsafeState a
+
+{-# COMPLETE State #-}
 
 getState :: State w a -> a
 getState (UnsafeState a) = a
