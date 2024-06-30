@@ -37,9 +37,9 @@ WORK IN PROGRESS, JUST HAVING FUN.
   all the previous modules, but also defines an umbrella `Workflow` concept for
   state machines with both concrete and abstract representations.
 
-- [Examples](./src/Examples.hs) + [Workflow.Example.*](./src/Workflow/Example/):
-  Lots of examples (pretty trivial ones so far) of state machines and their
-  associated code.
+- [Workflow.Example.*](./src/Workflow/Example/): Examples of different kinds of
+  state machines and their associated code. Not all implement `AbstractWorkflow`
+  and `ConcreteWorkflow`.
 
 - [Main](./src/Main.hs): Tiny executable that prints the GraphViz DOT
   representation of the `Xyz` example state machine / workflow for demonstration
