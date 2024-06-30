@@ -20,6 +20,7 @@ module Workflow.Abstract
   )
 where
 
+import Data.Hashable (Hashable (..), defaultHashWithSalt)
 import Data.Kind (Type)
 import Type.Reflection (Typeable)
 import Workflow.Info
@@ -62,7 +63,11 @@ deriving stock instance
   => Show (SomeTransitionTag w)
 
 data AbstractState w a = AbstractState
-  deriving stock (Show)
+  deriving stock (Show, Eq, Ord)
+
+instance Hashable (AbstractState w a) where
+  hash _ = hash ()
+  hashWithSalt = defaultHashWithSalt
 
 initA :: AbstractWorkflow w => TransitionTag w () o -> AbstractState w o
 initA _ = AbstractState
