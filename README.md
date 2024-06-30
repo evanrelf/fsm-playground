@@ -44,25 +44,6 @@ WORK IN PROGRESS, JUST HAVING FUN.
   representation of the `Xyz` example state machine / workflow for demonstration
   purposes.
 
-## Notes
-
-- I think my code is more like a Mealy machine[^mealy-wiki][^mealy-haskell]
-  than a Moore machine[^moore-wiki][^moore-haskell].
-  - Next state is derived from current state and input.
-  - Output is effects performed in `f` (can output a value if you use the right
-    functor, e.g. `Const a b` or `(a, b)`).
-- Composing state machines?
-  - [Hierarchically nested states](https://en.wikipedia.org/wiki/UML_state_machine#Hierarchically_nested_states)?
-  - Transition to state of another state machine? Would conflict with current
-    plans.
-- (De)serializing state?
-- Integrating an effect system?
-
-[^mealy-wiki]: https://en.wikipedia.org/wiki/Mealy_machine
-[^mealy-haskell]: https://hackage.haskell.org/package/machines-0.7.3/docs/Data-Machine-Mealy.html
-[^moore-wiki]: https://en.wikipedia.org/wiki/Moore_machine
-[^moore-haskell]: https://hackage.haskell.org/package/machines-0.7.3/docs/Data-Machine-Moore.html
-
 ## Developing
 
 1. `$ nix-shell`
