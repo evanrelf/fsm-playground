@@ -32,7 +32,10 @@ library
   build-depends:
     , aeson
     , algebraic-graphs
+    , containers
     , effectful-core
+    , effectful-plugin
+    , effectful-th
     , hashable
     , template-haskell
   exposed-modules:
@@ -40,6 +43,7 @@ library
     Workflow.Abstract
     Workflow.Abstract.TH
     Workflow.Concrete
+    Workflow.Example.Atm
     Workflow.Example.TimeRelease
     Workflow.Example.TrafficLight
     Workflow.Example.Xyz
