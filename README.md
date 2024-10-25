@@ -66,5 +66,5 @@ WORK IN PROGRESS, JUST HAVING FUN.
 ## Developing
 
 1. `$ nix develop`
-2. `$ ghcid Main.hs`
+2. `$ ghcid`
 3. `$ cabal build && cabal exec fsm-playground | dot -Tpng -o xyz.png && open xyz.png`
