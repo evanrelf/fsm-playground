@@ -24,15 +24,17 @@ WORK IN PROGRESS, JUST HAVING FUN.
   This is all you need to define and run state machines:
 
   ```haskell
+  -- States
   data Locked = Locked
-
   data Unlocked = Unlocked
 
+  -- Transitions
   data Turnstile f i o where
     Init :: Turnstile Identity () Locked
     Push :: Turnstile Identity Unlocked Locked
     Coin :: Turnstile Identity Locked Unlocked
 
+  -- Logic
   instance Workflow Turnstile where
     transitionRaw = \case
       Init -> \() -> pure Locked
