@@ -12,13 +12,13 @@ WORK IN PROGRESS, JUST HAVING FUN.
   class Workflow w where
     transitionRaw :: w f i o -> i -> f o
 
+  data State w a
+
+  getState :: State w a -> a
+
   initialize :: (Workflow w, Functor f) => w f () o -> f (State w o)
 
   transition :: (Workflow w, Functor f) => w f i o -> State w i -> f (State w o)
-
-  newtype State w a = UnsafeState a
-
-  getState :: State w a -> a
   ```
 
   This is all you need to define and run state machines:
