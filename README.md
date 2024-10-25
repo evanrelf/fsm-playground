@@ -5,7 +5,21 @@ WORK IN PROGRESS, JUST HAVING FUN.
 ## Tour
 
 - [Workflow.Core](./src/Workflow/Core.hs): The core state machine API. States,
-  inputs, transitions, and outputs/effects.
+  inputs, transitions, and outputs/effects. The essence of it fits on a
+  flashcard:
+
+  ```haskell
+  class Workflow w where
+    transitionRaw :: w f i o -> i -> f o
+
+  initialize :: (Workflow w, Functor f) => w f () o -> f (State w o)
+
+  transition :: (Workflow w, Functor f) => w f i o -> State w i -> f (State w o)
+
+  newtype State w a = UnsafeState a
+
+  getState :: State w a -> a
+  ```
 
   This is all you need to define and run real state machines. Stop here if you
   don't care about introspection stuff.
