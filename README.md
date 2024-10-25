@@ -86,8 +86,7 @@ WORK IN PROGRESS, JUST HAVING FUN.
   purposes.
 
 - I'm generating Haddocks manually and uploading them
-  [here](https://s3.evanrelf.com/fsm-playground/). Last updated 2024-06-30 at
-  5 PM PT.
+  [here](https://s3.evanrelf.com/fsm-playground/). Last updated 2024-10-24.
 
 ## Developing
 
