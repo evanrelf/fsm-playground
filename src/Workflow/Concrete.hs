@@ -7,8 +7,8 @@
 
 module Workflow.Concrete
   ( ConcreteWorkflow (..)
-  , initC
-  , transC
+  , initializeC
+  , transitionC
   , State (State)
   , getState
   , UnsafeStateFromJSON (..)
@@ -25,13 +25,13 @@ import GHC.TypeError (ErrorMessage (..), TypeError)
 -- transitions in this workflow, then you get type-safe workflow transitions
 -- with `State` + `initC` + `transC`.
 class ConcreteWorkflow w where
-  transImpl :: w f i o -> i -> f o
+  transitionRaw :: w f i o -> i -> f o
 
-initC :: (ConcreteWorkflow w, Functor f) => w f () o -> f (State w o)
-initC w = UnsafeState <$> transImpl w ()
+initializeC :: (ConcreteWorkflow w, Functor f) => w f () o -> f (State w o)
+initializeC w = UnsafeState <$> transitionRaw w ()
 
-transC :: (ConcreteWorkflow w, Functor f) => w f i o -> State w i -> f (State w o)
-transC w (State i) = UnsafeState <$> transImpl w i
+transitionC :: (ConcreteWorkflow w, Functor f) => w f i o -> State w i -> f (State w o)
+transitionC w (State i) = UnsafeState <$> transitionRaw w i
 
 -- | A completely opaque, correct by construction container for state. Can only
 -- be constructed by calling `initC` or `transC`.

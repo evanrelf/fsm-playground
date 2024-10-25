@@ -16,7 +16,6 @@ import Data.Function ((&))
 import Data.Functor.Identity (Identity (..))
 import Data.Proxy (Proxy (..))
 import GHC.TypeLits (KnownNat, type (-))
-import Prelude hiding (init)
 import Workflow
 
 -- | An opaque box that can only be manipulated via the `TimeRelease` workflow.
@@ -34,20 +33,20 @@ data TimeRelease f i o where
   Unlock :: TimeRelease Identity (Box 0 a) a
 
 instance ConcreteWorkflow TimeRelease where
-  transImpl :: TimeRelease f i o -> i -> f o
-  transImpl = \case
+  transitionRaw :: TimeRelease f i o -> i -> f o
+  transitionRaw = \case
     Lock _ a -> \() -> pure (UnsafeBox a)
     Tick -> \(UnsafeBox a) -> pure (UnsafeBox a)
     Unlock -> \(UnsafeBox a) -> pure a
 
 lock :: forall n a. KnownNat n => a -> State TimeRelease (Box n a)
-lock a = runIdentity $ init (Lock (Proxy @n) a)
+lock a = runIdentity $ initialize (Lock (Proxy @n) a)
 
 tick :: State TimeRelease (Box n a) -> State TimeRelease (Box (n - 1) a)
-tick i = runIdentity $ trans Tick i
+tick i = runIdentity $ transition Tick i
 
 unlock :: State TimeRelease (Box 0 a) -> a
-unlock i = getState $ runIdentity $ trans Unlock i
+unlock i = getState $ runIdentity $ transition Unlock i
 
 _exampleTimeRelease :: Bool
 _exampleTimeRelease =

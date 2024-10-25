@@ -8,7 +8,6 @@ module Workflow.Example.Xyz where
 import Control.Monad.IO.Class (MonadIO (..))
 import Data.Functor.Compose (Compose (..))
 import Data.Functor.Identity (Identity (..))
-import Prelude hiding (init)
 import Type.Reflection
 import Workflow
 
@@ -23,13 +22,13 @@ data Z = Z
 
 -- | The `Xyz` workflow
 data Xyz f i o where
-  -- | The `InitX` trans
+  -- | The `InitX` transition
   InitX :: Xyz Identity () X
-  -- | The `InitY` trans
+  -- | The `InitY` transition
   InitY :: Int -> Xyz Identity () Y
-  -- | The `XToY` trans
+  -- | The `XToY` transition
   XToY :: Int -> Xyz Identity X Y
-  -- | The `YToZ` trans
+  -- | The `YToZ` transition
   YToZ :: Xyz (IO `Compose` (,) Int) Y Z
   -- ^ Shows how you'd perform effects (`IO`) and return an output value
   -- (`(,) Int`).
@@ -77,28 +76,28 @@ instance AbstractWorkflow Xyz where
     SInitX ->
       TransitionInfo
         { name = "InitX"
-        , description = "The `InitX` trans"
+        , description = "The `InitX` transition"
         , input = Nothing
         , output = stateInfo SX
         }
     SInitY ->
       TransitionInfo
         { name = "InitY"
-        , description = "The `InitY` trans"
+        , description = "The `InitY` transition"
         , input = Nothing
         , output = stateInfo SY
         }
     SXToY ->
       TransitionInfo
         { name = "XToY"
-        , description = "The `XToY` trans"
+        , description = "The `XToY` transition"
         , input = Just (stateInfo SX)
         , output = stateInfo SY
         }
     SYToZ ->
       TransitionInfo
         { name = "YToZ"
-        , description = "The `YToZ` trans"
+        , description = "The `YToZ` transition"
         , input = Just (stateInfo SY)
         , output = stateInfo SZ
         }
@@ -117,8 +116,8 @@ instance AbstractWorkflow Xyz where
     YToZ -> SYToZ
 
 instance ConcreteWorkflow Xyz where
-  transImpl :: Xyz f i o -> i -> f o
-  transImpl = \case
+  transitionRaw :: Xyz f i o -> i -> f o
+  transitionRaw = \case
     InitX -> \() -> pure X
     InitY n -> \() -> pure (Y n)
     XToY n -> \X -> pure (Y n)
@@ -133,16 +132,16 @@ instance ConcreteWorkflow Xyz where
 -- know it's in a valid state and can only change via valid transitions.
 
 initX :: State Xyz X
-initX = runIdentity $ init InitX
+initX = runIdentity $ initialize InitX
 
 initY :: Int -> State Xyz Y
-initY n = runIdentity $ init (InitY n)
+initY n = runIdentity $ initialize (InitY n)
 
 xToY :: Int -> State Xyz X -> State Xyz Y
-xToY n i = runIdentity $ trans (XToY n) i
+xToY n i = runIdentity $ transition (XToY n) i
 
 yToZ :: MonadIO m => State Xyz Y -> m (Int, State Xyz Z)
-yToZ i = liftIO $ getCompose $ trans YToZ i
+yToZ i = liftIO $ getCompose $ transition YToZ i
 
 _exampleXyzA :: AbstractState Xyz Z
 _exampleXyzA =
@@ -164,27 +163,27 @@ _exampleXyzC =
 
 --------------------------------------------------------------------------------
 
--- Attempting to obtain an `State w Z` with `init` rather than `trans` by
--- creating a new workflow with the same data where that's a legal operation.
+-- Attempting to obtain an `State w Z` with `initialize` rather than `transition`
+-- by creating a new workflow with the same data where that's a legal operation.
 
 data EvilXyz f i o where
   EvilInitZ :: EvilXyz Identity () Z
   EvilZToX :: EvilXyz Identity Z X
 
 instance ConcreteWorkflow EvilXyz where
-  transImpl :: EvilXyz f i o -> i -> f o
-  transImpl = \case
+  transitionRaw :: EvilXyz f i o -> i -> f o
+  transitionRaw = \case
     EvilInitZ -> \() -> pure Z
     EvilZToX -> \Z -> pure X
 
 -- Doesn't compile if you lie about the workflow type, preventing invalid
--- `init`s or `trans`s (outside the canonical ones defined by the type
--- class).
+-- `initialize`s or `transition`s (outside the canonical ones defined by the
+-- type class).
 
 -- _evilInitZ :: State Xyz Z
 _evilInitZ :: State EvilXyz Z
-_evilInitZ = runIdentity $ init EvilInitZ
+_evilInitZ = runIdentity $ initialize EvilInitZ
 
 -- _evilZToX :: State Xyz Z -> State Xyz X
 _evilZToX :: State EvilXyz Z -> State EvilXyz X
-_evilZToX i = runIdentity $ trans EvilZToX i
+_evilZToX i = runIdentity $ transition EvilZToX i

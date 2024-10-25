@@ -30,7 +30,6 @@ import Effectful.Dispatch.Dynamic
 import Effectful.Error.Dynamic (Error, throwError, runErrorNoCallStackWith)
 import Effectful.State.Dynamic (runStateShared, get, modifyM)
 import Effectful.TH (makeEffect)
-import Prelude hiding (init)
 import Workflow
 
 newtype Card = Card String
@@ -235,7 +234,7 @@ data Atm f i o where
   AtmPowerOff :: Atm (Eff es) i Off
 
 instance ConcreteWorkflow Atm where
-  transImpl = \case
+  transitionRaw = \case
     AtmNew -> \() -> do
       pure Off
 
@@ -272,31 +271,31 @@ instance ConcreteWorkflow Atm where
 -- TODO: Derive `AbstractWorkflow` instance with Template Haskell
 
 new :: Eff es (State Atm Off)
-new = init AtmNew
+new = initialize AtmNew
 
 powerOn :: State Atm Off -> Eff es (State Atm AwaitingCard)
-powerOn state = trans AtmPowerOn state
+powerOn state = transition AtmPowerOn state
 
 insertCard :: Card -> State Atm AwaitingCard -> Eff es (State Atm AwaitingPin)
-insertCard card state = trans (AtmInsertCard card) state
+insertCard card state = transition (AtmInsertCard card) state
 
 enterPin :: Bank :> es => Pin -> State Atm AwaitingPin -> Eff es (Maybe (State Atm Menu))
-enterPin pin state = getCompose $ trans (AtmEnterPin pin) state
+enterPin pin state = getCompose $ transition (AtmEnterPin pin) state
 
 withdraw :: Bank :> es => Dollars -> State Atm Menu -> Eff es (State Atm Menu)
-withdraw amount state = trans (AtmWithdraw amount) state
+withdraw amount state = transition (AtmWithdraw amount) state
 
 deposit :: Bank :> es => Dollars -> State Atm Menu -> Eff es (State Atm Menu)
-deposit amount state = trans (AtmDeposit amount) state
+deposit amount state = transition (AtmDeposit amount) state
 
 getBalance :: Bank :> es => State Atm Menu -> Eff es (Dollars, State Atm Menu)
-getBalance state = getCompose $ trans AtmGetBalance state
+getBalance state = getCompose $ transition AtmGetBalance state
 
 exit :: State Atm Menu -> Eff es (State Atm AwaitingCard)
-exit state = trans AtmExit state
+exit state = transition AtmExit state
 
 powerOff :: State Atm state -> Eff es (State Atm Off)
-powerOff state = trans AtmPowerOff state
+powerOff state = transition AtmPowerOff state
 
 --------------------------------------------------------------------------------
 -- DEMO
