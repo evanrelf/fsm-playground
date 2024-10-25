@@ -21,8 +21,32 @@ WORK IN PROGRESS, JUST HAVING FUN.
   getState :: State w a -> a
   ```
 
-  This is all you need to define and run real state machines. Stop here if you
-  don't care about introspection stuff.
+  This is all you need to define and run state machines:
+
+  ```haskell
+  data Locked = Locked
+
+  data Unlocked = Unlocked
+
+  data Turnstile f i o where
+    Init :: Turnstile Identity () Locked
+    Push :: Turnstile Identity Unlocked Locked
+    Coin :: Turnstile Identity Locked Unlocked
+
+  instance Workflow Turnstile where
+    transitionRaw = \case
+      Init -> \() -> pure Locked
+      Push -> \Unlocked -> pure Locked
+      Coin -> \Locked -> pure Unlocked
+
+  _exampleTurnstile :: Identity (State Turnstile Locked)
+  _exampleTurnstile =
+        initialize Init
+    >>= transition Coin
+    >>= transition Push
+  ```
+
+  Stop here if you don't care about introspection stuff.
 
 - [Workflow.Abstract](./src/Workflow/Abstract.hs): A more abstract state machine
   API. Doesn't use real values for states or inputs, and doesn't perform

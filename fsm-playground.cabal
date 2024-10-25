@@ -49,6 +49,7 @@ library
     Workflow.Example.Atm
     Workflow.Example.TimeRelease
     Workflow.Example.TrafficLight
+    Workflow.Example.Turnstile
     Workflow.Example.Xyz
     Workflow.Info
 
