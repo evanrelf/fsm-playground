@@ -10,8 +10,8 @@ module Workflow.Abstract
   ( AbstractWorkflow (..)
   , stateInfos
   , transitionInfos
-  , initA
-  , transA
+  , abstractInitialize
+  , abstractTransition
   , AbstractState
   , SomeStateTag (..)
   , SomeTransitionTag (..)
@@ -42,11 +42,11 @@ transitionInfos :: forall w. AbstractWorkflow w => [TransitionInfo]
 transitionInfos =
   map (\(SomeTransitionTag tag) -> transitionInfo tag) (transitions @w)
 
-initA :: AbstractWorkflow w => TransitionTag w () o -> AbstractState w o
-initA _ = UnsafeAbstractState
+abstractInitialize :: AbstractWorkflow w => TransitionTag w () o -> AbstractState w o
+abstractInitialize _ = UnsafeAbstractState
 
-transA :: AbstractWorkflow w => TransitionTag w i o -> AbstractState w i -> AbstractState w o
-transA _ _ = UnsafeAbstractState
+abstractTransition :: AbstractWorkflow w => TransitionTag w i o -> AbstractState w i -> AbstractState w o
+abstractTransition _ _ = UnsafeAbstractState
 
 data AbstractState w a = UnsafeAbstractState
   deriving stock (Show, Eq, Ord)

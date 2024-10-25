@@ -146,9 +146,9 @@ yToZ i = liftIO $ getCompose $ transition YToZ i
 _exampleXyzA :: AbstractState Xyz Z
 _exampleXyzA =
   let
-    x = initA SInitX
-    y = transA SXToY x
-    z = transA SYToZ y
+    x = abstractInitialize SInitX
+    y = abstractTransition SXToY x
+    z = abstractTransition SYToZ y
   in
     z
 
