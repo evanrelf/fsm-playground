@@ -32,8 +32,8 @@ newtype State w a = UnsafeState a
   deriving newtype (Eq, Ord, Hashable, ToJSON)
   deriving stock (Show)
 
-instance HasField x r a => HasField x (State w r) a where
-  getField = getField @x . getState
+getState :: State w a -> a
+getState (State a) = a
 
 pattern State :: a -> State w a
 pattern State a <- UnsafeState a
@@ -42,8 +42,8 @@ pattern State a <- UnsafeState a
 -- that tries to construct a `State`, to explain why that's not allowed?
 -- Otherwise it's a vague error from GHC about the pattern being unidirectional.
 
-getState :: State w a -> a
-getState (State a) = a
+instance HasField x r a => HasField x (State w r) a where
+  getField = getField @x . getState
 
 data UnsafeStateFromJSON w a = UnsafeStateFromJSON (State w a)
 
