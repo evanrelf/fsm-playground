@@ -4,8 +4,8 @@ WORK IN PROGRESS, JUST HAVING FUN.
 
 ## Tour
 
-- [Workflow.Concrete](./src/Workflow/Concrete.hs): The core state machine API.
-  States, inputs, transitions, and outputs/effects.
+- [Workflow.Core](./src/Workflow/Core.hs): The core state machine API. States,
+  inputs, transitions, and outputs/effects.
 
   This is all you need to define and run real state machines. Stop here if you
   don't care about introspection stuff.
@@ -18,7 +18,7 @@ WORK IN PROGRESS, JUST HAVING FUN.
   (e.g. running simulations, writing property tests, generating pretty diagrams,
   etc.).
 
-  In the future, you'll be able to cash in any `ConcreteWorkflow` for a free
+  In the future, you'll be able to cash in any `Workflow` for a free
   `AbstractWorkflow` instance using Template Haskell.
 
 - [Workflow.Abstract.TH](./src/Workflow/Abstract/TH.hs): Template Haskell to
@@ -38,8 +38,8 @@ WORK IN PROGRESS, JUST HAVING FUN.
   state machines with both concrete and abstract representations.
 
 - [Workflow.Example.*](./src/Workflow/Example/): Examples of different kinds of
-  state machines and their associated code. Not all implement `AbstractWorkflow`
-  and `ConcreteWorkflow`.
+  state machines and their associated code. Not all implement `Workflow` and
+  `AbstractWorkflow`.
 
 - [Main](./src/Main.hs): Tiny executable that prints the GraphViz DOT
   representation of the `Xyz` example state machine / workflow for demonstration

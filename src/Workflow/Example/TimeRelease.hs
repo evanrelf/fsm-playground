@@ -32,7 +32,7 @@ data TimeRelease f i o where
   -- | Unlock a box whose timer has finished and return the value inside.
   Unlock :: TimeRelease Identity (Box 0 a) a
 
-instance ConcreteWorkflow TimeRelease where
+instance Workflow TimeRelease where
   transitionRaw :: TimeRelease f i o -> i -> f o
   transitionRaw = \case
     Lock _ a -> \() -> pure (UnsafeBox a)

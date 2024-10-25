@@ -3,8 +3,8 @@
 {-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-module Workflow.Concrete
-  ( ConcreteWorkflow (..)
+module Workflow.Core
+  ( Workflow (..)
   , initialize
   , transition
   , State (State)
@@ -19,13 +19,13 @@ import Data.Kind (Constraint)
 import GHC.Records (HasField (..))
 import GHC.TypeError (ErrorMessage (..), TypeError)
 
-class ConcreteWorkflow w where
+class Workflow w where
   transitionRaw :: w f i o -> i -> f o
 
-initialize :: (ConcreteWorkflow w, Functor f) => w f () o -> f (State w o)
+initialize :: (Workflow w, Functor f) => w f () o -> f (State w o)
 initialize w = UnsafeState <$> transitionRaw w ()
 
-transition :: (ConcreteWorkflow w, Functor f) => w f i o -> State w i -> f (State w o)
+transition :: (Workflow w, Functor f) => w f i o -> State w i -> f (State w o)
 transition w (State i) = UnsafeState <$> transitionRaw w i
 
 newtype State w a = UnsafeState a
@@ -59,5 +59,5 @@ type UnsafetyError w a = TypeError
 instance UnsafetyError w a => FromJSON (State w a) where
   parseJSON = error "unreachable"
 
-instance (ConcreteWorkflow w, FromJSON a) => FromJSON (UnsafeStateFromJSON w a) where
+instance (Workflow w, FromJSON a) => FromJSON (UnsafeStateFromJSON w a) where
   parseJSON = fmap (UnsafeStateFromJSON . UnsafeState) . parseJSON

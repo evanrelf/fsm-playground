@@ -115,7 +115,7 @@ instance AbstractWorkflow Xyz where
     XToY _ -> SXToY
     YToZ -> SYToZ
 
-instance ConcreteWorkflow Xyz where
+instance Workflow Xyz where
   transitionRaw :: Xyz f i o -> i -> f o
   transitionRaw = \case
     InitX -> \() -> pure X
@@ -170,7 +170,7 @@ data EvilXyz f i o where
   EvilInitZ :: EvilXyz Identity () Z
   EvilZToX :: EvilXyz Identity Z X
 
-instance ConcreteWorkflow EvilXyz where
+instance Workflow EvilXyz where
   transitionRaw :: EvilXyz f i o -> i -> f o
   transitionRaw = \case
     EvilInitZ -> \() -> pure Z

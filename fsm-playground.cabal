@@ -45,7 +45,7 @@ library
     Workflow
     Workflow.Abstract
     Workflow.Abstract.TH
-    Workflow.Concrete
+    Workflow.Core
     Workflow.Example.Atm
     Workflow.Example.TimeRelease
     Workflow.Example.TrafficLight

@@ -21,7 +21,7 @@ data TrafficLight f i o where
   Slow :: Applicative f => TrafficLight f Green Yellow
   Stop :: Applicative f => TrafficLight f Yellow Red
 
-instance ConcreteWorkflow TrafficLight where
+instance Workflow TrafficLight where
   transitionRaw :: TrafficLight f i o -> i -> f o
   transitionRaw = \case
     InitRed -> \() -> pure Red

@@ -123,8 +123,8 @@ runBank initialState = reinterpret (runStateShared initialState) \_env -> \case
 --
 -- In other words: `AbstractWorkflow` lets you _talk_ about the states and
 -- transitions in the abstract - what are they called, which transitions are
--- valid, etc. - but `ConcreteWorkflow` + an effects system lets you _execute
--- programs_ in a (more) abstract way.
+-- valid, etc. - but `Workflow` + an effects system lets you _execute programs_
+-- in a (more) abstract way.
 --
 -- You can write a workflow that works in production with real data launching
 -- real nukes, or in a simulation with stubbed out effects + extra logging +
@@ -233,7 +233,7 @@ data Atm f i o where
   AtmExit :: Atm (Eff es) Menu AwaitingCard
   AtmPowerOff :: Atm (Eff es) i Off
 
-instance ConcreteWorkflow Atm where
+instance Workflow Atm where
   transitionRaw = \case
     AtmNew -> \() -> do
       pure Off
