@@ -25,7 +25,7 @@ import GHC.TypeError (ErrorMessage (..), TypeError)
 -- transitions in this workflow, then you get type-safe workflow transitions
 -- with `State` + `initC` + `transC`.
 class ConcreteWorkflow w where
-  transImpl :: Functor f => w f i o -> i -> f o
+  transImpl :: w f i o -> i -> f o
 
 initC :: (ConcreteWorkflow w, Functor f) => w f () o -> f (State w o)
 initC w = UnsafeState <$> transImpl w ()
